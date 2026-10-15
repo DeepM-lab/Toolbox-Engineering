@@ -265,20 +265,20 @@ export const MechanicToolsPage: React.FC = () => {
   return (
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 font-sans">
       {/* 1. HERO BANNER - CHUẨN DEEPM LUXURY INDUSTRIAL */}
-      <div className="border-b border-[#23201b] pb-7 pt-2">
+      <div className="border-b border-brand-border pb-7 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#161410] border border-[#3d3422] text-[#c9a961] text-xs font-mono tracking-widest uppercase font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c9a961] animate-pulse"></span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#161410] border border-[#3d3422] text-brand-gold text-xs font-mono tracking-widest uppercase font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-gold animate-pulse"></span>
             DEEPM LAB • 12 BỘ CÔNG CỤ • 135 THUẬT TOÁN KỸ THUẬT Ô TÔ
           </div>
 
           {/* Switch Mode: Bàn tính hoặc Kiểm thử 12 Test Case */}
-          <div className="inline-flex items-center gap-1 bg-[#141311] p-1 border border-[#23201b] self-start sm:self-auto">
+          <div className="inline-flex items-center gap-1 bg-brand-card p-1 border border-brand-border self-start sm:self-auto">
             <button
               onClick={() => setActiveMode('calculator')}
               className={`flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                 activeMode === 'calculator'
-                  ? 'bg-[#c9a961] text-[#0c0b0a] shadow-sm'
+                  ? 'bg-brand-gold text-brand-bg shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-[#1a1815]'
               }`}
             >
@@ -289,7 +289,7 @@ export const MechanicToolsPage: React.FC = () => {
               onClick={() => setActiveMode('verification')}
               className={`flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                 activeMode === 'verification'
-                  ? 'bg-[#c9a961] text-[#0c0b0a] shadow-sm'
+                  ? 'bg-brand-gold text-brand-bg shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-[#1a1815]'
               }`}
             >
@@ -300,10 +300,10 @@ export const MechanicToolsPage: React.FC = () => {
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-black text-white uppercase leading-tight sm:leading-snug tracking-normal font-sans">
-          AUTOMOTIVE <span className="text-[#c9a961]">ENGINEERING TOOLBOX</span>
+          AUTOMOTIVE <span className="text-brand-gold">ENGINEERING TOOLBOX</span>
         </h1>
         <div className="font-mono text-xs text-slate-400 tracking-wider uppercase mt-3 flex flex-wrap gap-x-3 gap-y-1">
-          <span className="text-[#c9a961]">OFF-ROAD & 4X4</span>•
+          <span className="text-brand-gold">OFF-ROAD & 4X4</span>•
           <span>CAR AUDIO SPL</span>•
           <span>CAMPING RV</span>•
           <span>PERFORMANCE TUNING</span>•
@@ -322,10 +322,10 @@ export const MechanicToolsPage: React.FC = () => {
       {activeMode === 'verification' ? (
         /* GIAO DIỆN KIỂM THỬ TỰ ĐỘNG 12 CA TEST CHUẨN TỪ SHEET KIEM THU */
         <div className="space-y-6">
-          <div className="bg-[#141311] p-5 sm:p-6 border border-[#23201b] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-brand-card p-5 sm:p-6 border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-sm font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                <Flask size={18} className="text-[#c9a961]" weight="fill" />
+                <Flask size={18} className="text-brand-gold" weight="fill" />
                 BẢNG NGHIỆM CHỨNG CÔNG THỨC — 12 VÍ DỤ CÓ THỂ TÍNH LẠI
               </h2>
               <p className="text-xs text-slate-400 mt-1 font-sans">
@@ -344,21 +344,21 @@ export const MechanicToolsPage: React.FC = () => {
               const testRun = tool ? tool.calculate(tc.inputs) : null;
               
               return (
-                <div key={idx} className="bg-[#12110f] border border-[#23201b] hover:border-[#3d3422] p-4 space-y-3 transition flex flex-col justify-between">
+                <div key={idx} className="bg-[#12110f] border border-brand-border hover:border-[#3d3422] p-4 space-y-3 transition flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-[#c9a961] font-bold">[{targetId}]</span>
+                      <span className="text-brand-gold font-bold">[{targetId}]</span>
                       <span className="px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 text-[10px] font-bold border border-emerald-800/60">PASS</span>
                     </div>
                     <h3 className="font-bold text-white text-sm font-mono mt-1">{tc.testName}</h3>
                     <div className="text-xs text-slate-400 font-mono mt-0.5">Nhóm: <b className="text-slate-300">{tc.categoryName}</b></div>
 
-                    <div className="mt-3 bg-[#0c0b0a] p-2.5 border border-[#1f1c16] text-xs font-mono space-y-1">
+                    <div className="mt-3 bg-brand-bg p-2.5 border border-[#1f1c16] text-xs font-mono space-y-1">
                       <div className="text-slate-500 uppercase text-[10px] font-medium">Tham số nạp:</div>
                       {Object.entries(tc.inputs).map(([k, v]) => (
                         <div key={k} className="flex justify-between text-slate-300">
                           <span className="text-slate-400">{k}:</span>
-                          <span className="font-bold text-[#c9a961]">{v}</span>
+                          <span className="font-bold text-brand-gold">{v}</span>
                         </div>
                       ))}
                     </div>
@@ -377,7 +377,7 @@ export const MechanicToolsPage: React.FC = () => {
 
                   <button
                     onClick={() => handleLoadTestCase(tc)}
-                    className="w-full mt-3 py-2 bg-[#1a1712] hover:bg-[#c9a961] text-[#c9a961] hover:text-[#0c0b0a] border border-[#332b1c] hover:border-[#c9a961] font-mono text-xs uppercase font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full mt-3 py-2 bg-[#1a1712] hover:bg-brand-gold text-brand-gold hover:text-brand-bg border border-[#332b1c] hover:border-brand-gold font-mono text-xs uppercase font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Play size={13} weight="fill" />
                     Nạp Vào Bàn Tính
@@ -394,10 +394,10 @@ export const MechanicToolsPage: React.FC = () => {
           <div className="bg-[#151411] border border-[#2d2820] p-5 sm:p-6 shadow-md">
             <div className="flex items-center justify-between border-b border-[#28231a] pb-3 mb-4">
               <span className="text-sm font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                <CarProfile size={18} className="text-[#c9a961]" weight="bold" />
+                <CarProfile size={18} className="text-brand-gold" weight="bold" />
                 Hồ Sơ Xe & Báo Cáo Kỹ Thuật
               </span>
-              <span className="text-xs font-mono text-[#c9a961]/80 uppercase tracking-widest font-semibold">GARAGE CLIENT RECORD</span>
+              <span className="text-xs font-mono text-brand-gold/80 uppercase tracking-widest font-semibold">GARAGE CLIENT RECORD</span>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono">
@@ -409,7 +409,7 @@ export const MechanicToolsPage: React.FC = () => {
                   type="text"
                   value={vehicleInfo.customerName}
                   onChange={(e) => setVehicleInfo({ ...vehicleInfo, customerName: e.target.value })}
-                  className="w-full bg-[#0c0b0a] border border-[#383226] hover:border-[#4d4433] focus:border-[#c9a961] px-3.5 py-2.5 text-white font-medium text-sm sm:text-base outline-none transition"
+                  className="w-full bg-brand-bg border border-[#383226] hover:border-[#4d4433] focus:border-brand-gold px-3.5 py-2.5 text-white font-medium text-sm sm:text-base outline-none transition"
                 />
               </div>
               <div>
@@ -420,7 +420,7 @@ export const MechanicToolsPage: React.FC = () => {
                   type="text"
                   value={vehicleInfo.carModel}
                   onChange={(e) => setVehicleInfo({ ...vehicleInfo, carModel: e.target.value })}
-                  className="w-full bg-[#0c0b0a] border border-[#383226] hover:border-[#4d4433] focus:border-[#c9a961] px-3.5 py-2.5 text-white font-medium text-sm sm:text-base outline-none transition"
+                  className="w-full bg-brand-bg border border-[#383226] hover:border-[#4d4433] focus:border-brand-gold px-3.5 py-2.5 text-white font-medium text-sm sm:text-base outline-none transition"
                 />
               </div>
               <div>
@@ -431,7 +431,7 @@ export const MechanicToolsPage: React.FC = () => {
                   type="text"
                   value={vehicleInfo.licensePlate}
                   onChange={(e) => setVehicleInfo({ ...vehicleInfo, licensePlate: e.target.value })}
-                  className="w-full bg-[#0c0b0a] border border-[#383226] hover:border-[#4d4433] focus:border-[#c9a961] px-3.5 py-2.5 text-[#c9a961] font-bold text-sm sm:text-base outline-none tracking-wider transition"
+                  className="w-full bg-brand-bg border border-[#383226] hover:border-[#4d4433] focus:border-brand-gold px-3.5 py-2.5 text-brand-gold font-bold text-sm sm:text-base outline-none tracking-wider transition"
                 />
               </div>
             </div>
@@ -441,19 +441,19 @@ export const MechanicToolsPage: React.FC = () => {
           <div className="bg-[#151411] border border-[#2d2820] p-5 space-y-4 shadow-md">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
               <div className="flex items-center gap-2 font-mono uppercase">
-                <Funnel size={16} className="text-[#c9a961]" weight="bold" />
+                <Funnel size={16} className="text-brand-gold" weight="bold" />
                 <span className="font-bold text-white text-xs sm:text-sm tracking-wider">12 Chuyên Đề Kỹ Thuật:</span>
               </div>
               
               {/* Ô tìm kiếm chữ to hơn 1-2px, viền sáng, kèm nút X xóa nhanh */}
               <div className="relative w-full sm:w-88">
-                <MagnifyingGlass size={18} className="absolute left-3.5 top-3 text-[#c9a961] pointer-events-none" />
+                <MagnifyingGlass size={18} className="absolute left-3.5 top-3 text-brand-gold pointer-events-none" />
                 <input
                   type="text" 
                   placeholder="Tìm tên công cụ, mã DM-001..."
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
-                  className="w-full bg-[#433d36] border border-[#383226] hover:border-[#4d4433] pl-10 pr-10 py-2 text-sm font-mono text-[#dcb55c] focus:outline-none focus:border-[#c9a961] transition placeholder:text-slate-300/60"
+                  className="w-full bg-[#433d36] border border-[#383226] hover:border-[#4d4433] pl-10 pr-10 py-2 text-sm font-mono text-[#dcb55c] focus:outline-none focus:border-brand-gold transition placeholder:text-slate-300/60"
                 />
                 {searchKeyword && (
                   <button
@@ -480,8 +480,8 @@ export const MechanicToolsPage: React.FC = () => {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`px-3.5 py-2 text-xs sm:text-[13px] font-mono uppercase tracking-wider transition cursor-pointer border ${
                       isActive
-                        ? 'bg-[#c9a961] text-[#0c0b0a] border-[#c9a961] font-black shadow-md'
-                        : 'bg-[#0e0d0b] text-slate-300 border-[#2b261e] hover:border-[#c9a961]/60 hover:text-white hover:bg-[#1a1713]'
+                        ? 'bg-brand-gold text-brand-bg border-brand-gold font-black shadow-md'
+                        : 'bg-[#0e0d0b] text-slate-300 border-[#2b261e] hover:border-brand-gold/60 hover:text-white hover:bg-[#1a1713]'
                     }`}
                   >
                     {shortLabel}
@@ -495,12 +495,12 @@ export const MechanicToolsPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {/* CỘT TRÁI: DANH SÁCH TOOL DẠNG COMPACT LIST */}
-            <div className="lg:col-span-5 bg-[#12110f] border border-[#23201b] flex flex-col h-[750px]">
-              <div className="p-3.5 border-b border-[#23201b] bg-[#161410] flex justify-between items-center text-sm font-mono">
+            <div className="lg:col-span-5 bg-[#12110f] border border-brand-border flex flex-col h-[750px]">
+              <div className="p-3.5 border-b border-brand-border bg-[#161410] flex justify-between items-center text-sm font-mono">
                 <span className="font-bold text-slate-200 uppercase tracking-wider">
                   DANH SÁCH TOOL ({filteredTools.length}/135)
                 </span>
-                <span className="text-xs text-[#c9a961] uppercase font-bold">CHỌN ĐỂ TÍNH</span>
+                <span className="text-xs text-brand-gold uppercase font-bold">CHỌN ĐỂ TÍNH</span>
               </div>
 
               <div className="overflow-y-auto flex-1 divide-y divide-[#1a1815] p-1.5">
@@ -509,7 +509,7 @@ export const MechanicToolsPage: React.FC = () => {
                     <p>Không tìm thấy công cụ nào khớp với từ khóa "{searchKeyword}".</p>
                     <button
                       onClick={() => { setSearchKeyword(''); setSelectedCategory('all'); }}
-                      className="px-3 py-1.5 bg-[#1c1913] hover:bg-[#252018] text-[#c9a961] border border-[#3d3422] text-xs font-bold uppercase transition cursor-pointer"
+                      className="px-3 py-1.5 bg-[#1c1913] hover:bg-[#252018] text-brand-gold border border-[#3d3422] text-xs font-bold uppercase transition cursor-pointer"
                     >
                       Xóa bộ lọc & xem lại 135 tools
                     </button>
@@ -523,12 +523,12 @@ export const MechanicToolsPage: React.FC = () => {
                         onClick={() => setSelectedToolId(tool.id)}
                         className={`w-full text-left p-3.5 transition cursor-pointer flex flex-col gap-1.5 border ${
                           isSelected
-                            ? 'bg-[#1c1913] border-[#c9a961] text-white'
+                            ? 'bg-[#1c1913] border-brand-gold text-white'
                             : 'bg-transparent border-transparent hover:bg-[#161512] text-slate-300'
                         }`}
                       >
                         <div className="flex items-center justify-between text-sm font-mono">
-                          <span className={`font-bold ${isSelected ? 'text-[#c9a961]' : 'text-slate-400'}`}>
+                          <span className={`font-bold ${isSelected ? 'text-brand-gold' : 'text-slate-400'}`}>
                             [{tool.id}]
                           </span>
                           <span className="text-xs text-slate-400 uppercase font-medium">{tool.classification || tool.category}</span>
@@ -543,16 +543,16 @@ export const MechanicToolsPage: React.FC = () => {
             </div>
 
             {/* CỘT PHẢI: BÀN TÍNH TOÁN KỸ THUẬT */}
-            <div className="lg:col-span-7 bg-[#12110f] border border-[#23201b] p-6 space-y-6">
+            <div className="lg:col-span-7 bg-[#12110f] border border-brand-border p-6 space-y-6">
               
               {/* Header của Tool đang chọn */}
-              <div className="border-b border-[#23201b] pb-4 space-y-2.5">
+              <div className="border-b border-brand-border pb-4 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-sm font-mono text-[#c9a961] font-bold tracking-wider uppercase">
+                  <span className="text-xs sm:text-sm font-mono text-brand-gold font-bold tracking-wider uppercase">
                     {currentTool.id} • {currentTool.category}
                   </span>
                   {currentTool.classification && (
-                    <span className="px-2.5 py-0.5 bg-[#1a1711] border border-[#3d3422] text-[#c9a961] text-xs font-mono font-semibold">
+                    <span className="px-2.5 py-0.5 bg-[#1a1711] border border-[#3d3422] text-brand-gold text-xs font-mono font-semibold">
                       {currentTool.classification}
                     </span>
                   )}
@@ -567,9 +567,9 @@ export const MechanicToolsPage: React.FC = () => {
                 </p>
 
                 {/* Khối công thức sắc nét */}
-                <div className="bg-[#0c0b0a] border border-[#23201b] p-3.5 text-sm font-mono flex items-center justify-between">
+                <div className="bg-brand-bg border border-brand-border p-3.5 text-sm font-mono flex items-center justify-between">
                   <span className="text-slate-400 font-medium">Công thức:</span>
-                  <code className="text-[#c9a961] font-bold text-base sm:text-[17px] tracking-wide">{currentTool.formula}</code>
+                  <code className="text-brand-gold font-bold text-base sm:text-[17px] tracking-wide">{currentTool.formula}</code>
                 </div>
 
                 {/* Giới hạn áp dụng / Cảnh báo an toàn */}
@@ -590,12 +590,12 @@ export const MechanicToolsPage: React.FC = () => {
                       <Info size={15} /> Nguồn:
                     </span>
                     {currentTool.source1 && (
-                      <a href={currentTool.source1} target="_blank" rel="noreferrer" className="text-[#c9a961] hover:underline inline-flex items-center gap-0.5">
+                      <a href={currentTool.source1} target="_blank" rel="noreferrer" className="text-brand-gold hover:underline inline-flex items-center gap-0.5">
                         Tài liệu đối chiếu 1 <ArrowSquareOut size={13} />
                       </a>
                     )}
                     {currentTool.source2 && (
-                      <a href={currentTool.source2} target="_blank" rel="noreferrer" className="text-[#c9a961] hover:underline inline-flex items-center gap-0.5">
+                      <a href={currentTool.source2} target="_blank" rel="noreferrer" className="text-brand-gold hover:underline inline-flex items-center gap-0.5">
                         Tài liệu đối chiếu 2 <ArrowSquareOut size={13} />
                       </a>
                     )}
@@ -611,7 +611,7 @@ export const MechanicToolsPage: React.FC = () => {
                   </span>
                   <button
                     onClick={handleResetInputs}
-                    className="text-xs sm:text-[13px] font-mono text-slate-400 hover:text-[#c9a961] flex items-center gap-1 transition cursor-pointer font-medium"
+                    className="text-xs sm:text-[13px] font-mono text-slate-400 hover:text-brand-gold flex items-center gap-1 transition cursor-pointer font-medium"
                   >
                     <ArrowsClockwise size={14} />
                     Đặt lại mặc định
@@ -623,10 +623,10 @@ export const MechanicToolsPage: React.FC = () => {
                     const val = currentInputs[inp.key] ?? inp.defaultVal;
                     const minVal = getInputMin(inp);
                     return (
-                      <div key={inp.key} className="bg-[#0c0b0a] border border-[#23201b] p-3.5 focus-within:border-[#c9a961] transition">
+                      <div key={inp.key} className="bg-brand-bg border border-brand-border p-3.5 focus-within:border-brand-gold transition">
                         <div className="flex justify-between items-center text-sm mb-1.5">
                           <label className="text-slate-200 font-semibold text-[13px] sm:text-sm">{inp.label}</label>
-                          {inp.unit && <span className="text-[#c9a961] font-mono font-bold text-xs">{inp.unit}</span>}
+                          {inp.unit && <span className="text-brand-gold font-mono font-bold text-xs">{inp.unit}</span>}
                         </div>
                         <input
                           type="number"
@@ -671,7 +671,7 @@ export const MechanicToolsPage: React.FC = () => {
                         <div className={`text-2xl sm:text-3xl font-bold font-mono mt-2 flex items-baseline gap-2 ${
                           typeof out.value === 'string' && (out.value.includes('Không hợp lệ') || out.value.includes('Vô cực'))
                             ? 'text-rose-400 text-lg sm:text-xl'
-                            : 'text-[#c9a961]'
+                            : 'text-brand-gold'
                         }`}>
                           <span>{out.value}</span>
                           {out.unit && <span className="text-sm text-slate-400 font-normal">{out.unit}</span>}
@@ -685,16 +685,16 @@ export const MechanicToolsPage: React.FC = () => {
                 <div className={`p-4 flex items-start gap-3 text-sm border ${
                   calculationResult.hasMathError
                     ? 'bg-[#1c1212] border-rose-600/40 text-rose-200'
-                    : 'bg-[#14120e] border-[#c9a961]/40 text-slate-200'
+                    : 'bg-[#14120e] border-brand-gold/40 text-slate-200'
                 }`}>
                   {calculationResult.hasMathError ? (
                     <WarningCircle size={20} className="text-rose-400 shrink-0 mt-0.5" weight="fill" />
                   ) : (
-                    <CheckCircle size={20} className="text-[#c9a961] shrink-0 mt-0.5" weight="fill" />
+                    <CheckCircle size={20} className="text-brand-gold shrink-0 mt-0.5" weight="fill" />
                   )}
                   <div className="space-y-1">
                     <span className={`font-mono font-bold uppercase tracking-wider text-xs sm:text-[13px] ${
-                      calculationResult.hasMathError ? 'text-rose-400' : 'text-[#c9a961]'
+                      calculationResult.hasMathError ? 'text-rose-400' : 'text-brand-gold'
                     }`}>
                       {calculationResult.hasMathError ? 'CẢNH BÁO TOÁN HỌC / THAM SỐ:' : 'NHẬN ĐỊNH KỸ THUẬT:'}
                     </span>
@@ -704,14 +704,14 @@ export const MechanicToolsPage: React.FC = () => {
               </div>
 
               {/* Nút lưu phép tính */}
-              <div className="flex justify-end pt-3 border-t border-[#23201b]">
+              <div className="flex justify-end pt-3 border-t border-brand-border">
                 <button
                   onClick={handleSaveCurrentCalculation}
                   disabled={calculationResult.hasMathError}
                   className={`flex items-center gap-2 px-7 py-3 font-mono text-xs sm:text-sm uppercase tracking-wider font-bold transition shadow-md ${
                     calculationResult.hasMathError
                       ? 'bg-[#1e1b17] text-slate-500 border border-[#2b251e] cursor-not-allowed opacity-70'
-                      : 'bg-[#c9a961] hover:bg-[#b8974e] text-[#0c0b0a] cursor-pointer'
+                      : 'bg-brand-gold hover:bg-brand-gold-hover text-brand-bg cursor-pointer'
                   }`}
                 >
                   <Plus size={16} weight="bold" />
@@ -723,11 +723,11 @@ export const MechanicToolsPage: React.FC = () => {
           </div>
 
           {/* 5. DANH SÁCH CÁC HẠNG MỤC ĐÃ LƯU & NÚT XUẤT EXCEL */}
-          <div className="bg-[#12110f] border border-[#23201b] p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#23201b] pb-3.5">
+          <div className="bg-[#12110f] border border-brand-border p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-brand-border pb-3.5">
               <div>
                 <h3 className="text-sm font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                  <FileXls size={18} className="text-[#c9a961]" weight="bold" />
+                  <FileXls size={18} className="text-brand-gold" weight="bold" />
                   Hạng Mục Đã Lưu Vào Phiếu ({savedCalculations.length})
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5 font-sans">
@@ -737,7 +737,7 @@ export const MechanicToolsPage: React.FC = () => {
 
               <button
                 onClick={handleExportExcel}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#c9a961] hover:bg-[#b8974e] text-[#0c0b0a] font-mono text-xs uppercase tracking-wider font-bold transition cursor-pointer shadow-md self-start sm:self-auto"
+                className="flex items-center gap-2 px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-hover text-brand-bg font-mono text-xs uppercase tracking-wider font-bold transition cursor-pointer shadow-md self-start sm:self-auto"
               >
                 <FileXls size={16} weight="bold" />
                 Kết Xuất File Excel (.xlsx) Ngay
@@ -754,7 +754,7 @@ export const MechanicToolsPage: React.FC = () => {
                   <div key={index} className="py-3 flex items-center justify-between gap-4 font-mono text-xs">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[#c9a961] font-bold">[{item.toolId}]</span>
+                        <span className="text-brand-gold font-bold">[{item.toolId}]</span>
                         <span className="text-white font-semibold">{item.toolName}</span>
                         <span className="text-[10px] text-slate-500">({item.category})</span>
                       </div>

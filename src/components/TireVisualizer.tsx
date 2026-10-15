@@ -30,16 +30,16 @@ export const TireVisualizer: React.FC<TireVisualizerProps> = ({
   const compareTireRadiusPx = compareWith ? (compareWith.totalDiameterMm / 2) * scale : null;
 
   return (
-    <div className="bg-[#141311] border border-[#23201b] p-6 flex flex-col items-center">
+    <div className="bg-brand-card border border-brand-border p-6 flex flex-col items-center">
       {/* Header kỹ thuật phong cách deepm.vn */}
-      <div className="w-full flex items-center justify-between border-b border-[#23201b] pb-3 mb-6">
+      <div className="w-full flex items-center justify-between border-b border-brand-border pb-3 mb-6">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-[#c9a961]" />
+          <div className="w-2 h-2 bg-brand-gold" />
           <span className="text-[11px] font-mono tracking-widest uppercase text-slate-300 font-bold">
             {label}
           </span>
         </div>
-        <span className="font-mono text-xs text-[#c9a961] font-bold bg-[#0c0b0a] px-3 py-1 border border-[#3d3422]">
+        <span className="font-mono text-xs text-brand-gold font-bold bg-brand-bg px-3 py-1 border border-[#3d3422]">
           {width}/{aspectRatio}R{rimDiameter}
         </span>
       </div>
@@ -47,7 +47,7 @@ export const TireVisualizer: React.FC<TireVisualizerProps> = ({
       {/* SVG Canvas mô phỏng - Phóng to thêm diện tích hiển thị */}
       <div className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center my-3">
         {/* Lưới tọa độ background */}
-        <div className="absolute inset-0 bg-[radial-gradient(#2c271f_1px,transparent_1px)] [background-size:16px_16px] opacity-70 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(#2c271f_1px,transparent_1px)] bg-size-[16px_16px] opacity-70 pointer-events-none" />
 
         <svg viewBox="0 0 320 320" className="w-full h-full relative z-10">
           {/* Trục tâm chữ thập */}
@@ -132,19 +132,19 @@ export const TireVisualizer: React.FC<TireVisualizerProps> = ({
         </svg>
 
         {/* Badge đo đạc đường kính danh nghĩa */}
-        <div className="absolute bottom-2 bg-[#0c0b0a]/95 border border-[#c9a961]/50 px-4 py-1.5 font-mono text-xs sm:text-sm text-slate-200 shadow-lg">
-          Ø DANH NGHĨA: <span className="text-[#c9a961] font-bold text-sm sm:text-base">{totalDiameterMm} mm</span>
+        <div className="absolute bottom-2 bg-brand-bg/95 border border-brand-gold/50 px-4 py-1.5 font-mono text-xs sm:text-sm text-slate-200 shadow-lg">
+          Ø DANH NGHĨA: <span className="text-brand-gold font-bold text-sm sm:text-base">{totalDiameterMm} mm</span>
         </div>
       </div>
 
       {/* Thông số đo lường bên dưới - Chữ to, phân cấp rõ ràng */}
-      <div className="grid grid-cols-2 gap-3.5 w-full mt-4 font-mono border-t border-[#23201b] pt-4">
-        <div className="bg-[#0c0b0a] p-4 border border-[#23201b] hover:border-[#383329] transition">
+      <div className="grid grid-cols-2 gap-3.5 w-full mt-4 font-mono border-t border-brand-border pt-4">
+        <div className="bg-brand-bg p-4 border border-brand-border hover:border-[#383329] transition">
           <div className="text-slate-400 text-xs uppercase font-bold tracking-wider">ĐỘ CAO HÔNG LỐP</div>
           <div className="text-white text-lg sm:text-xl font-bold mt-1.5">{sidewallHeightMm} mm</div>
           <div className="text-xs text-slate-400 mt-1">{aspectRatio}% bề rộng lốp</div>
         </div>
-        <div className="bg-[#0c0b0a] p-4 border border-[#23201b] hover:border-[#383329] transition">
+        <div className="bg-brand-bg p-4 border border-brand-border hover:border-[#383329] transition">
           <div className="text-slate-400 text-xs uppercase font-bold tracking-wider">BỀ RỘNG TIẾP XÚC</div>
           <div className="text-white text-lg sm:text-xl font-bold mt-1.5">{width} mm</div>
           <div className="text-xs text-slate-400 mt-1">Tiết diện mặt gai</div>

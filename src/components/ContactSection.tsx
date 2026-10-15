@@ -8,20 +8,20 @@ import {
 
 export const ContactSection: React.FC = () => {
   return (
-    <section id="contact" className="mt-16 pt-12 border-t border-[#23201b]">
+    <section id="contact" className="mt-16 pt-12 border-t border-brand-border">
       <div className="max-w-4xl mx-auto text-center space-y-6">
         
         {/* Label tiêu đề */}
-        <div className="inline-flex items-center gap-3 text-sm font-mono tracking-widest text-[#c9a961] uppercase font-bold">
-          <span className="w-10 h-[1.5px] bg-[#c9a961]"></span>
+        <div className="inline-flex items-center gap-3 text-sm font-mono tracking-widest text-brand-gold uppercase font-bold">
+          <span className="w-10 h-[1.5px] bg-brand-gold"></span>
           LIÊN HỆ
-          <span className="w-10 h-[1.5px] bg-[#c9a961]"></span>
+          <span className="w-10 h-[1.5px] bg-brand-gold"></span>
         </div>
 
         {/* Tiêu đề chính - Cỡ chữ to ấn tượng, giãn cách thoáng */}
         <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white uppercase font-sans leading-tight tracking-normal">
           INBOX NGAY<br />
-          <span className="text-[#c9a961]">ĐỂ TƯ VẤN MIỄN PHÍ</span>
+          <span className="text-brand-gold">ĐỂ TƯ VẤN MIỄN PHÍ</span>
         </h2>
 
         {/* Slogan DeepM */}
@@ -33,7 +33,7 @@ export const ContactSection: React.FC = () => {
         <div className="pt-3">
           <a
             href="tel:0982502609"
-            className="inline-block text-5xl sm:text-6xl lg:text-7xl font-black font-mono text-[#c9a961] hover:text-[#e5c47c] transition tracking-wider"
+            className="inline-block text-5xl sm:text-6xl lg:text-7xl font-black font-mono text-brand-gold hover:text-[#e5c47c] transition tracking-wider"
           >
             0982502609
           </a>
@@ -48,9 +48,9 @@ export const ContactSection: React.FC = () => {
             href="https://www.google.com/maps/place/DeepM+LaB/@20.9381989,105.8543122,59m/data=!3m1!1e3!4m6!3m5!1s0x3135ad006698afef:0x37657df4913868ce!8m2!3d20.9381929!4d105.854618!16s%2Fg%2F11zcjf5h3n!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MTAxMS4wIKXMDSoASAFQAw%3D%3D"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2.5 px-6 py-3.5 bg-[#141311] hover:bg-[#1f1b13] border border-[#28241e] hover:border-[#c9a961] text-sm font-mono uppercase font-bold text-slate-200 hover:text-[#c9a961] transition"
+            className="flex items-center gap-2.5 px-6 py-3.5 bg-brand-card hover:bg-[#1f1b13] border border-[#28241e] hover:border-brand-gold text-sm font-mono uppercase font-bold text-slate-200 hover:text-brand-gold transition"
           >
-            <MapPin size={18} className="text-[#c9a961]" weight="fill" />
+            <MapPin size={18} className="text-brand-gold" weight="fill" />
             <span>Xem Bản Đồ</span>
           </a>
 
@@ -58,9 +58,9 @@ export const ContactSection: React.FC = () => {
             href="https://www.facebook.com/profile.php?id=61593524801396"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2.5 px-6 py-3.5 bg-[#141311] hover:bg-[#1f1b13] border border-[#28241e] hover:border-[#c9a961] text-sm font-mono uppercase font-bold text-slate-200 hover:text-[#c9a961] transition"
+            className="flex items-center gap-2.5 px-6 py-3.5 bg-brand-card hover:bg-[#1f1b13] border border-[#28241e] hover:border-brand-gold text-sm font-mono uppercase font-bold text-slate-200 hover:text-brand-gold transition"
           >
-            <ChatCircleDots size={18} className="text-[#c9a961]" weight="fill" />
+            <ChatCircleDots size={18} className="text-brand-gold" weight="fill" />
             <span>Inbox Fanpage</span>
           </a>
 
@@ -68,9 +68,9 @@ export const ContactSection: React.FC = () => {
             href="https://deepm.vn"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2.5 px-6 py-3.5 bg-[#141311] hover:bg-[#1f1b13] border border-[#28241e] hover:border-[#c9a961] text-sm font-mono uppercase font-bold text-slate-200 hover:text-[#c9a961] transition"
+            className="flex items-center gap-2.5 px-6 py-3.5 bg-brand-card hover:bg-[#1f1b13] border border-[#28241e] hover:border-brand-gold text-sm font-mono uppercase font-bold text-slate-200 hover:text-brand-gold transition"
           >
-            <Gear size={18} className="text-[#c9a961]" weight="fill" />
+            <Gear size={18} className="text-brand-gold" weight="fill" />
             <span>Chi Tiết Sản Phẩm</span>
           </a>
         </div>
@@ -80,13 +80,13 @@ export const ContactSection: React.FC = () => {
           href="https://www.google.com/maps/place/DeepM+LaB/@20.9381989,105.8543122,59m/data=!3m1!1e3!4m6!3m5!1s0x3135ad006698afef:0x37657df4913868ce!8m2!3d20.9381929!4d105.854618!16s%2Fg%2F11zcjf5h3n!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MTAxMS4wIKXMDSoASAFQAw%3D%3D"
           target="_blank"
           rel="noreferrer"
-          className="mt-10 mx-auto max-w-2xl bg-[#12110f] hover:bg-[#181512] border border-[#23201b] hover:border-[#c9a961]/60 p-7 text-center space-y-3 block transition cursor-pointer group"
+          className="mt-10 mx-auto max-w-2xl bg-[#12110f] hover:bg-[#181512] border border-brand-border hover:border-brand-gold/60 p-7 text-center space-y-3 block transition cursor-pointer group"
         >
-          <div className="text-xs font-mono uppercase tracking-widest text-[#c9a961] font-bold flex items-center justify-center gap-1.5">
+          <div className="text-xs font-mono uppercase tracking-widest text-brand-gold font-bold flex items-center justify-center gap-1.5">
             <MapPin size={15} weight="fill" />
             <span>ĐỊA CHỈ XƯỞNG (MỞ GOOGLE MAPS)</span>
           </div>
-          <div className="text-2xl font-bold text-white font-sans group-hover:text-[#c9a961] transition">
+          <div className="text-2xl font-bold text-white font-sans group-hover:text-brand-gold transition">
             DeepM Lab
           </div>
           <p className="text-sm sm:text-base text-slate-200 font-sans leading-relaxed">

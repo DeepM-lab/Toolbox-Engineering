@@ -8,9 +8,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'tire' | 'mechanic'>('tire');
 
   return (
-    <div className="min-h-screen bg-[#0c0b0a] text-[#e5e5e5] flex flex-col font-sans selection:bg-[#c9a961] selection:text-black">
+    <div className="min-h-screen bg-brand-bg text-[#e5e5e5] flex flex-col font-sans selection:bg-brand-gold selection:text-black">
       {/* HEADER THEO PHONG CÁCH CHUẨN DEEPM.VN */}
-      <header className="sticky top-0 z-50 bg-[#0c0b0a]/95 backdrop-blur-md border-b border-[#23201b]">
+      <header className="sticky top-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
           {/* Logo DeepM chuẩn như web deepm.vn */}
@@ -21,7 +21,7 @@ export default function App() {
             </div>
             <div>
               <div className="font-extrabold text-white tracking-wider text-sm leading-none flex items-center gap-2">
-                DEEPM LAB <span className="text-[9px] uppercase px-1.5 py-0.5 bg-[#1f1b13] text-[#c9a961] font-mono border border-[#3d3422]">R&D CENTER</span>
+                DEEPM LAB <span className="text-[9px] uppercase px-1.5 py-0.5 bg-[#1f1b13] text-brand-gold font-mono border border-[#3d3422]">R&D CENTER</span>
               </div>
               <div className="text-[10px] text-slate-400 font-mono mt-1">AUTOMOTIVE ENGINEERING TOOLBOX</div>
             </div>
@@ -29,12 +29,12 @@ export default function App() {
 
             {/* Menu & Switch Tabs */}
           <div className="flex items-center gap-4">
-            <nav className="flex items-center gap-2 bg-[#141311] p-1.5 border border-[#23201b]">
+            <nav className="flex items-center gap-2 bg-brand-card p-1.5 border border-brand-border">
               <button
                 onClick={() => setActiveTab('tire')}
                 className={`flex items-center gap-2 px-5 py-2.5 text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                   activeTab === 'tire'
-                    ? 'bg-[#c9a961] text-[#0c0b0a]'
+                    ? 'bg-brand-gold text-brand-bg'
                     : 'text-slate-300 hover:text-white hover:bg-[#1a1815]'
                 }`}
               >
@@ -46,7 +46,7 @@ export default function App() {
                 onClick={() => setActiveTab('mechanic')}
                 className={`flex items-center gap-2 px-5 py-2.5 text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                   activeTab === 'mechanic'
-                    ? 'bg-[#c9a961] text-[#0c0b0a]'
+                    ? 'bg-brand-gold text-brand-bg'
                     : 'text-slate-300 hover:text-white hover:bg-[#1a1815]'
                 }`}
               >
@@ -56,7 +56,7 @@ export default function App() {
             </nav>
 
             {/* Nút Liên Hệ */}
-            <div className="flex items-center gap-3 pl-2 border-l border-[#23201b]">
+            <div className="flex items-center gap-3 pl-2 border-l border-brand-border">
               <button 
                 onClick={() => {
                   const el = document.getElementById('contact');
@@ -64,7 +64,7 @@ export default function App() {
                     el.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="px-5 py-2.5 bg-[#c9a961] text-[#0c0b0a] text-sm font-mono font-bold uppercase tracking-wider hover:bg-[#b8974e] transition cursor-pointer"
+                className="px-5 py-2.5 bg-brand-gold text-brand-bg text-sm font-mono font-bold uppercase tracking-wider hover:bg-brand-gold-hover transition cursor-pointer"
               >
                 LIÊN HỆ
               </button>
@@ -83,7 +83,7 @@ export default function App() {
       </main>
 
       {/* FOOTER CHUẨN KỸ THUẬT DEEPM */}
-      <footer className="bg-[#0c0b0a] border-t border-[#23201b] py-8 text-sm font-mono text-slate-400">
+      <footer className="bg-brand-bg border-t border-brand-border py-8 text-sm font-mono text-slate-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-slate-300">
             <ShieldCheck size={20} className="text-brand-gold" weight="bold" />
@@ -92,7 +92,7 @@ export default function App() {
           <div className="flex items-center gap-4 text-slate-400">
             <span>© 2026 DEEPM.VN</span>
             <span>•</span>
-            <span className="text-[#c9a961] font-bold">DeepM</span>
+            <span className="text-brand-gold font-bold">DeepM</span>
           </div>
         </div>
       </footer>
