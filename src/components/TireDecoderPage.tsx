@@ -316,14 +316,33 @@ export const TireDecoderPage: React.FC = () => {
                           ? 'Chuẩn tải siêu cao (High Load) chuyên dụng xe điện / pin lớn' 
                           : (parsedSpec.extraLoad ? 'Thành lốp gia cố cho xe nặng / xe điện' : 'Áp suất tải tiêu chuẩn thông thường'))}
                   </span>
-                  {parsedSpec.techFeatures && parsedSpec.techFeatures.length > 0 && (
-                    <div className="mt-2.5 flex flex-wrap gap-1">
-                      {parsedSpec.techFeatures.map((feat, idx) => (
-                        <span key={idx} className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-brand-gold text-[10px] font-mono">
+                  {parsedSpec.terrainOrTech && parsedSpec.terrainOrTech.length > 0 ? (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      {parsedSpec.terrainOrTech.map((item, idx) => (
+                        <span 
+                          key={idx} 
+                          title={item.desc}
+                          className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-[#c9a961] text-[10px] font-mono cursor-help"
+                        >
+                          {item.code} ({item.name})
+                        </span>
+                      ))}
+                      {parsedSpec.techFeatures?.filter(f => f.startsWith('Số lớp bố')).map((feat, idx) => (
+                        <span key={`pr-${idx}`} className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-slate-300 text-[10px] font-mono">
                           {feat}
                         </span>
                       ))}
                     </div>
+                  ) : (
+                    parsedSpec.techFeatures && parsedSpec.techFeatures.length > 0 && (
+                      <div className="mt-2.5 flex flex-wrap gap-1">
+                        {parsedSpec.techFeatures.map((feat, idx) => (
+                          <span key={idx} className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-[#c9a961] text-[10px] font-mono">
+                            {feat}
+                          </span>
+                        ))}
+                      </div>
+                    )
                   )}
                 </div>
               </div>

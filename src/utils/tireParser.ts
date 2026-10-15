@@ -1,57 +1,20 @@
-import { OE_MARKINGS } from '../data/tireEncyclopedia';
+import { 
+  LOAD_INDEX_TABLE, 
+  SPEED_RATING_TABLE, 
+  VEHICLE_TYPE_MAP, 
+  LOAD_RANGE_TABLE, 
+  OE_MARKINGS, 
+  TERRAIN_TECH_SPECS 
+} from '../data/tireEncyclopedia';
 
-// Bảng tra cứu tải trọng Load Index (kg / 1 lốp) chuẩn quốc tế từ 60 đến 130
-export const LOAD_INDEX_TABLE: Record<number, number> = {
-  60: 250, 61: 257, 62: 265, 63: 272, 64: 280,
-  65: 290, 66: 300, 67: 307, 68: 315, 69: 325,
-  70: 335, 71: 345, 72: 355, 73: 365, 74: 375,
-  75: 387, 76: 397, 77: 412, 78: 425, 79: 437,
-  80: 450, 81: 462, 82: 475, 83: 487, 84: 500,
-  85: 515, 86: 530, 87: 545, 88: 560, 89: 580,
-  90: 600, 91: 615, 92: 630, 93: 650, 94: 670,
-  95: 690, 96: 710, 97: 730, 98: 750, 99: 775,
-  100: 800, 101: 825, 102: 850, 103: 875, 104: 900,
-  105: 925, 106: 950, 107: 975, 108: 1000, 109: 1030,
-  110: 1060, 111: 1090, 112: 1120, 113: 1150, 114: 1180,
-  115: 1215, 116: 1250, 117: 1285, 118: 1320, 119: 1360,
-  120: 1400, 121: 1450, 122: 1500, 123: 1550, 124: 1600,
-  125: 1650, 126: 1700, 127: 1750, 128: 1800, 129: 1850,
-  130: 1900
-};
-
-// Bảng tra cứu tốc độ Speed Rating (km/h) theo mục 9.2
-export const SPEED_RATING_TABLE: Record<string, { speedKmH: number; desc: string }> = {
-  L: { speedKmH: 120, desc: 'Xe tải nhẹ chuyên dụng, xe công trình' },
-  M: { speedKmH: 130, desc: 'Lốp dự phòng tạm thời (khuyến nghị chạy <= 80 km/h)' },
-  N: { speedKmH: 140, desc: 'Lốp dự phòng, xe tải nhỏ' },
-  P: { speedKmH: 150, desc: 'Xe đô thị cỡ nhỏ' },
-  Q: { speedKmH: 160, desc: 'Xe địa hình 4x4, lốp mùa đông' },
-  R: { speedKmH: 170, desc: 'Xe bán tải, xe địa hình SUV' },
-  S: { speedKmH: 180, desc: 'Xe sedan / hatchback phổ thông' },
-  T: { speedKmH: 190, desc: 'Sedan, MPV, Crossover gia đình' },
-  U: { speedKmH: 200, desc: 'Xe sedan phân khúc tầm trung' },
-  H: { speedKmH: 210, desc: 'Sedan / SUV hiệu năng vừa' },
-  V: { speedKmH: 240, desc: 'Sedan / SUV công suất cao' },
-  W: { speedKmH: 270, desc: 'Xe thể thao hiệu năng cao' },
-  Y: { speedKmH: 300, desc: 'Siêu xe thể thao cao cấp' },
-  '(Y)': { speedKmH: 320, desc: 'Siêu xe đặc biệt vận tốc trên 300 km/h' }
-};
-
-export const VEHICLE_TYPE_MAP: Record<string, string> = {
-  P: 'Passenger (Xe du lịch, sedan, hatchback, crossover gia đình - P-Metric)',
-  LT: 'Light Truck (Xe bán tải, SUV khung gầm rời, xe tải nhẹ)',
-  ST: 'Special Trailer (Xe đầu kéo, rơ-moóc chuyên dụng)',
-  T: 'Temporary (Lốp thay thế dự phòng khẩn cấp)',
-  C: 'Commercial (Xe thương mại chở khách, xe tải van)',
-  HL: 'High Load Capacity (Chuẩn lốp chịu tải cực cao dành riêng cho xe điện & SUV pin lớn)'
-};
-
-export const LOAD_RANGE_TABLE: Record<string, { plyRating: string; desc: string }> = {
-  B: { plyRating: '4 PR', desc: 'Tải nhẹ tiêu chuẩn (Standard Load, 4 lớp bố)' },
-  C: { plyRating: '6 PR', desc: 'Tải trung bình, SUV nhẹ (6 lớp bố)' },
-  D: { plyRating: '8 PR', desc: 'Tải nặng, bán tải & SUV việt dã (8 lớp bố)' },
-  E: { plyRating: '10 PR', desc: 'Tải cực nặng (10 lớp bố / 10 PR), áp suất cao đến 80 PSI, thành hông gia cố chống chém đá sỏi' },
-  F: { plyRating: '12 PR', desc: 'Tải thương mại siêu trọng (12 lớp bố)' }
+// Re-export để các module khác vẫn tương thích khi import từ tireParser
+export { 
+  LOAD_INDEX_TABLE, 
+  SPEED_RATING_TABLE, 
+  VEHICLE_TYPE_MAP, 
+  LOAD_RANGE_TABLE, 
+  OE_MARKINGS, 
+  TERRAIN_TECH_SPECS 
 };
 
 export interface FullTireSpec {
@@ -69,13 +32,14 @@ export interface FullTireSpec {
   dualLoadKg?: { single: number; dual: number; singleTotal4: number };
   maxLoadKg?: number; // 615 kg
   maxTotalLoadKg?: number; // 2460 kg (4 lốp)
-  speedRating?: string; // V, R, Y...
+  speedRating?: string; // V, R, Y, Z...
   maxSpeedKmH?: number; // 240
   speedDesc?: string;
   extraLoad?: string; // XL, RF, HL, REINFORCED
   loadRange?: string; // E, D, C...
   loadRangeDesc?: string;
   oeMarking?: { brand: string; note: string; code: string };
+  terrainOrTech?: { code: string; name: string; desc: string }[];
   techFeatures?: string[];
   unrecognizedTokens?: string[];
   validationWarning?: string;
@@ -159,11 +123,9 @@ export function parseFullTireString(input: string): FullTireSpec | null {
   let loadRange: string | undefined;
   let loadRangeDesc: string | undefined;
   let oeMarking: { brand: string; note: string; code: string } | undefined;
+  const terrainOrTech: { code: string; name: string; desc: string }[] = [];
   const techFeatures: string[] = [];
   const unrecognizedTokens: string[] = [];
-
-  const RUNFLAT_CODES = ['RFT', 'SSR', 'ZP', 'ROF', 'DSST', 'RUNFLAT', 'RUN-FLAT'];
-  const TERRAIN_CODES = ['A/T', 'AT', 'M/T', 'MT', 'H/T', 'HT', 'R/T', 'RT', 'M+S', '3PMSF'];
 
   if (restString) {
     const tokens = restString.split(/\s+/).filter(Boolean);
@@ -226,25 +188,15 @@ export function parseFullTireString(input: string): FullTireSpec | null {
         continue;
       }
 
-      // 5.5. Nhận diện Công nghệ Run-Flat (chống xịt)
-      if (RUNFLAT_CODES.includes(token)) {
-        techFeatures.push(`Lốp chống xịt Run-Flat (${token})`);
+      // 5.5. Nhận diện Công nghệ lốp & Ký hiệu địa hình từ TERRAIN_TECH_SPECS
+      if (TERRAIN_TECH_SPECS[token]) {
+        const spec = TERRAIN_TECH_SPECS[token];
+        terrainOrTech.push({ code: token, name: spec.name, desc: spec.desc });
+        techFeatures.push(`${token} - ${spec.name}`);
         continue;
       }
 
-      // 5.6. Nhận diện Ký hiệu gai địa hình (A/T, M/T, H/T, M+S, 3PMSF...)
-      if (TERRAIN_CODES.includes(token)) {
-        const terrainDesc = token === 'A/T' || token === 'AT' ? 'Gai All-Terrain (đa địa hình)'
-          : token === 'M/T' || token === 'MT' ? 'Gai Mud-Terrain (chuyên lội bùn lầy)'
-          : token === 'H/T' || token === 'HT' ? 'Gai Highway-Terrain (chuyên cao tốc)'
-          : token === 'R/T' || token === 'RT' ? 'Gai Rugged-Terrain (lai việt dã)'
-          : token === 'M+S' ? 'Bám bùn tuyết Mud & Snow'
-          : 'Chuẩn 3 đỉnh núi bông tuyết 3PMSF';
-        techFeatures.push(`${token} - ${terrainDesc}`);
-        continue;
-      }
-
-      // 5.7. Nhận diện OE Marking hãng xe
+      // 5.6. Nhận diện OE Marking hãng xe
       if (OE_MARKINGS[token]) {
         oeMarking = {
           code: token,
@@ -292,6 +244,7 @@ export function parseFullTireString(input: string): FullTireSpec | null {
     loadRange,
     loadRangeDesc,
     oeMarking,
+    terrainOrTech: terrainOrTech.length > 0 ? terrainOrTech : undefined,
     techFeatures: techFeatures.length > 0 ? techFeatures : undefined,
     unrecognizedTokens: unrecognizedTokens.length > 0 ? unrecognizedTokens : undefined,
     validationWarning

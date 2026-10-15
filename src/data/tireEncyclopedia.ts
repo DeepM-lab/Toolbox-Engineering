@@ -1,7 +1,10 @@
 // Dữ liệu tra cứu toàn diện theo tài liệu "Thông số lốp.md" của DeepM
 
-// 9.1. Chỉ số tải trọng (Load Index - Li)
+// 9.1. Chỉ số tải trọng chuẩn quốc tế (Load Index - Li) từ 60 đến 130
 export const LOAD_INDEX_TABLE: Record<number, number> = {
+  60: 250, 61: 257, 62: 265, 63: 272, 64: 280,
+  65: 290, 66: 300, 67: 307, 68: 315, 69: 325,
+  70: 335, 71: 345, 72: 355, 73: 365, 74: 375,
   75: 387, 76: 397, 77: 412, 78: 425, 79: 437,
   80: 450, 81: 462, 82: 475, 83: 487, 84: 500,
   85: 515, 86: 530, 87: 545, 88: 560, 89: 580,
@@ -11,64 +14,99 @@ export const LOAD_INDEX_TABLE: Record<number, number> = {
   105: 925, 106: 950, 107: 975, 108: 1000, 109: 1030,
   110: 1060, 111: 1090, 112: 1120, 113: 1150, 114: 1180,
   115: 1215, 116: 1250, 117: 1285, 118: 1320, 119: 1360,
-  120: 1400, 121: 1450, 122: 1500, 123: 1550, 124: 1600, 125: 1650
+  120: 1400, 121: 1450, 122: 1500, 123: 1550, 124: 1600,
+  125: 1650, 126: 1700, 127: 1750, 128: 1800, 129: 1850,
+  130: 1900
 };
 
-// 9.2. Chỉ số giới hạn tốc độ (Speed Rating)
+// 9.2. Chỉ số giới hạn tốc độ chuẩn quốc tế (Speed Rating)
 export const SPEED_RATING_TABLE: Record<string, { speedKmH: number; desc: string }> = {
-  L: { speedKmH: 120, desc: 'Xe tải nhẹ chuyên dụng, xe nông nghiệp' },
-  M: { speedKmH: 130, desc: 'Lốp dự phòng tạm thời' },
+  L: { speedKmH: 120, desc: 'Xe tải nhẹ chuyên dụng, xe công trình' },
+  M: { speedKmH: 130, desc: 'Lốp dự phòng tạm thời (khuyến nghị chạy <= 80 km/h)' },
   N: { speedKmH: 140, desc: 'Lốp dự phòng, xe tải nhỏ' },
   P: { speedKmH: 150, desc: 'Xe đô thị cỡ nhỏ' },
   Q: { speedKmH: 160, desc: 'Xe địa hình 4x4, lốp mùa đông' },
-  R: { speedKmH: 170, desc: 'Xe bán tải, xe địa hình' },
-  S: { speedKmH: 180, desc: 'Xe sedan/hatchback gia đình phổ thông' },
-  T: { speedKmH: 190, desc: 'Xe sedan, MPV, Crossover gia đình' },
+  R: { speedKmH: 170, desc: 'Xe bán tải, xe địa hình SUV' },
+  S: { speedKmH: 180, desc: 'Xe sedan / hatchback phổ thông' },
+  T: { speedKmH: 190, desc: 'Sedan, MPV, Crossover gia đình' },
   U: { speedKmH: 200, desc: 'Xe sedan phân khúc tầm trung' },
-  H: { speedKmH: 210, desc: 'Xe thể thao phổ thông, sedan/SUV hiệu năng vừa' },
-  V: { speedKmH: 240, desc: 'Xe sedan/SUV công suất cao' },
+  H: { speedKmH: 210, desc: 'Sedan / SUV hiệu năng vừa' },
+  V: { speedKmH: 240, desc: 'Sedan / SUV công suất cao' },
+  Z: { speedKmH: 240, desc: 'Lốp hiệu năng cao trên 240 km/h (Chuẩn ZR)' },
   W: { speedKmH: 270, desc: 'Xe thể thao hiệu năng cao' },
-  Y: { speedKmH: 300, desc: 'Siêu xe thể thao' },
+  Y: { speedKmH: 300, desc: 'Siêu xe thể thao cao cấp' },
   '(Y)': { speedKmH: 320, desc: 'Siêu xe đặc biệt vận tốc trên 300 km/h' }
 };
 
 // 3.1. Phân loại loại lốp
 export const VEHICLE_TYPE_MAP: Record<string, string> = {
-  P: 'Passenger (Xe du lịch, xe gia đình)',
-  LT: 'Light Truck (Xe bán tải, xe tải nhẹ, SUV khung rời)',
-  ST: 'Special Trailer (Loại xe đầu kéo, rơ-moóc đặc biệt)',
-  T: 'Temporary (Lốp thay thế tạm thời / dự phòng)',
-  C: 'Commercial (Xe thương mại, xe tải van, xe khách nhỏ)'
+  P: 'Passenger (Xe du lịch, sedan, hatchback, crossover gia đình - P-Metric)',
+  LT: 'Light Truck (Xe bán tải, SUV khung gầm rời, xe tải nhẹ)',
+  ST: 'Special Trailer (Xe đầu kéo, rơ-moóc chuyên dụng)',
+  T: 'Temporary (Lốp thay thế dự phòng khẩn cấp)',
+  C: 'Commercial (Xe thương mại chở khách, xe tải van)',
+  HL: 'High Load Capacity (Chuẩn lốp chịu tải cực cao dành riêng cho xe điện & SUV pin lớn)'
+};
+
+// Phân hạng tải trọng và số lớp bố (Load Range / Ply Rating)
+export const LOAD_RANGE_TABLE: Record<string, { plyRating: string; desc: string }> = {
+  B: { plyRating: '4 PR', desc: 'Tải nhẹ tiêu chuẩn (Standard Load, 4 lớp bố)' },
+  C: { plyRating: '6 PR', desc: 'Tải trung bình, SUV nhẹ (6 lớp bố)' },
+  D: { plyRating: '8 PR', desc: 'Tải nặng, bán tải & SUV việt dã (8 lớp bố)' },
+  E: { plyRating: '10 PR', desc: 'Tải cực nặng (10 lớp bố / 10 PR), áp suất cao đến 80 PSI, thành hông gia cố chống chém đá sỏi' },
+  F: { plyRating: '12 PR', desc: 'Tải thương mại siêu trọng (12 lớp bố)' }
 };
 
 // Ký hiệu hãng xe nguyên gốc (Original Equipment - OE Markings)
 export const OE_MARKINGS: Record<string, { brand: string; note: string }> = {
   N0: { brand: 'Porsche', note: 'Thiết kế riêng cho Porsche thế hệ 1' },
   N1: { brand: 'Porsche', note: 'Thiết kế riêng cho Porsche thế hệ 2' },
+  N2: { brand: 'Porsche', note: 'Thiết kế riêng cho Porsche thế hệ 3' },
+  N3: { brand: 'Porsche', note: 'Thiết kế riêng cho Porsche thế hệ 4' },
+  N4: { brand: 'Porsche', note: 'Thiết kế riêng cho Porsche thế hệ 5' },
+  NA0: { brand: 'Porsche', note: 'Thiết kế OEM cho Porsche 911 (992) / Taycan' },
+  NF0: { brand: 'Porsche', note: 'Thiết kế OEM cho Porsche Taycan EV' },
   N: { brand: 'Porsche', note: 'Dòng lốp OEM chuẩn cho Porsche' },
   K1: { brand: 'Ferrari', note: 'Dòng lốp OEM chuẩn cho Ferrari' },
   K2: { brand: 'Ferrari', note: 'Dòng lốp OEM chuẩn cho Ferrari thế hệ mới' },
-  T: { brand: 'Tesla', note: 'Tối ưu độ ồn mút cách âm xốp cho xe điện Tesla' },
+  T0: { brand: 'Tesla', note: 'Lốp OEM chuẩn Tesla (tích hợp mút tiêu âm Acoustic Foam)' },
+  T1: { brand: 'Tesla', note: 'Lốp OEM Tesla thế hệ tinh chỉnh thứ 2' },
+  T2: { brand: 'Tesla', note: 'Lốp OEM Tesla thế hệ tinh chỉnh thứ 3' },
   MO: { brand: 'Mercedes-Benz', note: 'Mercedes Original - Tiêu chuẩn xuất xưởng Mercedes' },
   MOE: { brand: 'Mercedes-Benz', note: 'Mercedes Original Extended (Lốp Run-flat của Mercedes)' },
   '*': { brand: 'BMW / Mini', note: 'Dấu sao chứng nhận tiêu chuẩn hãng BMW' },
+  STAR: { brand: 'BMW / Mini', note: 'Dấu sao chứng nhận tiêu chuẩn hãng BMW (ký hiệu chữ)' },
+  RSC: { brand: 'BMW', note: 'Runflat System Component - Tiêu chuẩn lốp chống xịt chính hãng BMW' },
   AO: { brand: 'Audi', note: 'Audi Original - Tiêu chuẩn xuất xưởng Audi' },
   RO1: { brand: 'Audi Sport', note: 'Dành riêng cho các dòng Audi RS thể thao' },
   J: { brand: 'Jaguar', note: 'Thiết kế tiêu chuẩn riêng của Jaguar' },
   LR: { brand: 'Land Rover', note: 'Thiết kế tối ưu cho Range Rover & Land Rover' },
-  VO: { brand: 'Volvo', note: 'Tiêu chuẩn OEM xe Volvo Thụy Điển' }
+  VO: { brand: 'Volvo', note: 'Tiêu chuẩn OEM xe Volvo Thụy Điển' },
+  FO: { brand: 'Ford', note: 'Tiêu chuẩn xuất xưởng Ford Performance' },
+  TO: { brand: 'Toyota', note: 'Tiêu chuẩn xuất xưởng Toyota OEM' }
 };
 
 // Ký hiệu địa hình & công nghệ gai lốp
 export const TERRAIN_TECH_SPECS: Record<string, { name: string; desc: string }> = {
   'H/T': { name: 'Highway Terrain', desc: 'Chuyên chạy đường nhựa cao tốc, êm ái, cách âm tốt, ít cản lăn.' },
+  'HT': { name: 'Highway Terrain', desc: 'Chuyên chạy đường nhựa cao tốc, êm ái, cách âm tốt, ít cản lăn.' },
   'A/T': { name: 'All Terrain', desc: 'Đa địa hình (50% đường nhựa, 50% đường xấu, đèo dốc sỏi đá nhẹ).' },
+  'AT': { name: 'All Terrain', desc: 'Đa địa hình (50% đường nhựa, 50% đường xấu, đèo dốc sỏi đá nhẹ).' },
   'M/T': { name: 'Mud Terrain', desc: 'Chuyên lội bùn sâu, rãnh gai to bản, chống trượt địa hình gồ ghề cực đoan.' },
+  'MT': { name: 'Mud Terrain', desc: 'Chuyên lội bùn sâu, rãnh gai to bản, chống trượt địa hình gồ ghề cực đoan.' },
+  'R/T': { name: 'Rugged Terrain', desc: 'Gai lai đa dụng (Rugged-Terrain), đệm êm hơn M/T nhưng bám địa hình tốt hơn A/T.' },
+  'RT': { name: 'Rugged Terrain', desc: 'Gai lai đa dụng (Rugged-Terrain), đệm êm hơn M/T nhưng bám địa hình tốt hơn A/T.' },
   'M+S': { name: 'Mud & Snow', desc: 'Bám tốt hơn trên bề mặt bùn lầy hoặc tuyết mỏng (bắt buộc ở một số nước).' },
+  'M/S': { name: 'Mud & Snow', desc: 'Bám tốt hơn trên bề mặt bùn lầy hoặc tuyết mỏng.' },
+  'MS': { name: 'Mud & Snow', desc: 'Bám tốt hơn trên bề mặt bùn lầy hoặc tuyết mỏng.' },
   '3PMSF': { name: '3-Peak Mountain Snowflake', desc: 'Biểu tượng núi 3 đỉnh tuyết rơi — Đạt chuẩn khắt khe về độ bám đường băng tuyết.' },
   'Tubeless': { name: 'Lốp không săm', desc: 'Nhẹ hơn, tiết kiệm nhiên liệu, không xì hơi đột ngột khi cán đinh.' },
   'Tube Type': { name: 'Lốp có săm', desc: 'Phải dùng ruột săm bên trong, thường dùng xe tải nặng hoặc mâm nan hoa căm.' },
-  'RFT / ZP / SSR': { name: 'Run-Flat (Chống xịt)', desc: 'Thành lốp tự chịu lực, cho phép chạy tiếp 80km ở tốc độ 80km/h khi mất áp hoàn toàn.' },
+  'RFT': { name: 'Run-Flat (Chống xịt)', desc: 'Thành lốp tự chịu lực, cho phép chạy tiếp 80km ở tốc độ 80km/h khi mất áp hoàn toàn.' },
+  'SSR': { name: 'Run-Flat Continental (SSR)', desc: 'Công nghệ Self-Supporting Runflat của Continental, giữ vững tay lái khi mất áp.' },
+  'ZP': { name: 'Run-Flat Michelin (Zero Pressure)', desc: 'Công nghệ Zero Pressure của Michelin, chạy an toàn 80km khi xì hết hơi.' },
+  'ROF': { name: 'Run-Flat Goodyear (RunOnFlat)', desc: 'Công nghệ RunOnFlat của Goodyear, hỗ trợ di chuyển an toàn khi thủng lốp.' },
+  'DSST': { name: 'Run-Flat Dunlop (DSST)', desc: 'Dunlop Self-Supporting Technology lốp chống xịt gia cố hông.' },
   'Outside / Inside': { name: 'Gai bất đối xứng', desc: 'Mặt ngoài rãnh lớn bám cua, mặt trong thoát nước. Bắt buộc lắp chữ Outside hướng ra ngoài.' },
   'Rotation': { name: 'Gai lốp định hướng', desc: 'Có mũi tên xoay chỉ chiều quay — Phải lắp đúng hướng mũi tên quay tới khi xe tiến.' }
 };
@@ -103,7 +141,7 @@ export const TIRE_WEAR_GUIDE = [
   {
     type: 'Vạch báo mòn 1.6 mm (Tread Wear Indicator)',
     symptom: 'Độ sâu rãnh gai mòn ngang bằng các gờ cao su nhỏ 1.6 mm ẩn trong rãnh lốp.',
-    action: 'Bắt buộc thay lốp mới ngay lập tức. Đây là giới hạn luật định và kiểm định đăng kiểm.'
+    action: 'Bắt buộc thay lốp mới ngay lập tức. (Gai lốp mới thông thường sâu 7.5 – 8.5 mm; lốp A/T, M/T sâu 10 – 14 mm. Khi mòn còn 3.0 mm là khả năng thoát nước chống trượt nước aquaplaning trên cao tốc mưa lớn đã giảm rõ rệt; đến 1.6 mm là giới hạn luật định và kiểm định đăng kiểm bắt buộc thay thế).'
   },
   {
     type: 'Mòn ở chính giữa mặt lốp',
@@ -134,25 +172,6 @@ export const TIRE_WEAR_GUIDE = [
     action: 'Dù gai lốp còn dày cũng nên thay nếu lốp đã sản xuất quá 5 - 6 năm (xem mã tuần/năm DOT).'
   }
 ];
-
-export interface FullTireSpec {
-  rawString: string;
-  vehicleType?: string;
-  vehicleTypeDesc?: string;
-  width: number;
-  aspectRatio: number;
-  construction: string;
-  rimDiameter: number;
-  loadIndex?: number;
-  maxLoadKg?: number;
-  maxTotalLoadKg?: number;
-  speedRating?: string;
-  maxSpeedKmH?: number;
-  speedDesc?: string;
-  extraLoad?: string;
-  dotWeek?: number;
-  dotYear?: number;
-}
 
 export type DotStatus = 'fresh' | 'good' | 'warning' | 'expired' | 'future' | 'invalid';
 
