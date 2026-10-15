@@ -79,6 +79,21 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     score -= 5;
   }
 
+  // 5. Đánh giá lốp dự phòng tạm thời (T)
+  if (spec.vehicleType === 'T') {
+    score = Math.min(score, 65); // Khống chế tối đa 65 điểm: chỉ là lốp tạm thời khẩn cấp
+  }
+
+  // 6. Đánh giá cấu trúc Bias / Diagonal (D hoặc B)
+  if (spec.construction === 'D' || spec.construction === 'B') {
+    score -= 15;
+  }
+
+  // 7. Cảnh báo thông số vượt ngưỡng quy chuẩn thực tế
+  if (spec.validationWarning) {
+    score -= 40;
+  }
+
   // Giới hạn điểm từ 0 đến 100
   const safetyScore = Math.max(0, Math.min(100, score));
 
@@ -103,12 +118,18 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
   const specText = spec.rawString || `${spec.width}/${spec.aspectRatio}R${spec.rimDiameter}`;
   let summary = '';
 
-  if (!hasFullRating) {
-    summary = `Lốp ${specText} có kích thước hình học tiêu chuẩn. Bạn có thể nhập thêm chỉ số tải trọng và tốc độ (ví dụ 91V, 112T) để DeepM thẩm định sức chịu tải và giới hạn tốc độ chi tiết hơn.`;
+  if (spec.validationWarning) {
+    summary = `Thông số lốp ${specText} có kích thước bất thường, vượt ngoài dải quy chuẩn thông dụng của các nhà sản xuất ô tô quốc tế. Cần kiểm tra lại dãy ký tự dập nổi trên thành lốp thực tế.`;
+  } else if (spec.isFlotation && spec.flotationSpec) {
+    summary = `Lốp ${specText} thuộc hệ Inch Flotation (Đường kính ${spec.flotationSpec.diameterInch}" x Bản rộng ${spec.flotationSpec.widthInch}" mâm R${spec.flotationSpec.rimInch}"), tương đương cỡ Metric ~${spec.width}/${spec.aspectRatio}R${spec.rimDiameter}. Thiết kế chuyên dụng cho xe bán tải, SUV off-road gầm cao leo dốc và lội bùn lầy.`;
+  } else if (spec.vehicleType === 'T') {
+    summary = `Lốp ${specText} là lốp dự phòng thay thế tạm thời (Temporary Spare). Chỉ sử dụng trong tình huống khẩn cấp để di chuyển quãng đường ngắn về garage/xưởng dịch vụ, khuyến nghị tốc độ tối đa không quá 80 km/h, tuyệt đối không chạy đường dài.`;
+  } else if (!hasFullRating) {
+    summary = `Lốp ${specText} có kích thước hình học hợp lệ. Bạn nên nhập thêm chỉ số tải trọng và mã tốc độ (ví dụ 91V, 112T) để DeepM Lab thẩm định sức chịu tải và giới hạn tốc độ chi tiết hơn.`;
   } else if (safetyScore >= 80) {
-    summary = `Lốp ${specText} có thông số đầy đủ và hợp lý. Phù hợp sử dụng bình thường, đảm bảo an toàn kỹ thuật trên các cung đường tiêu chuẩn.`;
+    summary = `Lốp ${specText} có thông số đầy đủ và rất hợp lý. Đảm bảo an toàn kỹ thuật cao trên các cung đường tiêu chuẩn và cao tốc.`;
   } else if (safetyScore >= 60) {
-    summary = `Lốp ${specText} có một số điểm cần lưu ý trước khi quyết định sử dụng, đặc biệt về độ dày thành lốp hoặc dải tải trọng/tốc độ tối đa.`;
+    summary = `Lốp ${specText} có một số điểm kỹ thuật cần lưu ý trước khi vận hành (độ dày thành lốp, giới hạn vận tốc hoặc tính chất lốp chuyên dụng).`;
   } else {
     summary = `Lốp ${specText} thiếu thông số kỹ thuật quan trọng hoặc có chỉ số không phù hợp với điều kiện vận hành an toàn. Cần kiểm tra kỹ trước khi lắp lên xe.`;
   }
@@ -213,8 +234,14 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     });
   }
 
-  // 5. Lốp gia cường
-  if (spec.extraLoad) {
+  // 5. Lốp gia cường / Load Range
+  if (spec.loadRange) {
+    checklist.push({
+      label: 'Phân hạng tải Load Range',
+      status: 'ok',
+      note: `Hạng ${spec.loadRange} (${spec.loadRangeDesc || ''}) — thành hông gia cường chịu va đập đá sỏi, áp suất lốp cao.`
+    });
+  } else if (spec.extraLoad) {
     checklist.push({
       label: 'Kết cấu chịu tải',
       status: 'ok',
@@ -224,7 +251,7 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     checklist.push({
       label: 'Kết cấu chịu tải',
       status: 'warn',
-      note: 'Xe bán tải / SUV tải nhẹ nên ưu tiên lốp XL hoặc LT chuyên dụng để tăng khả năng chở nặng an toàn.'
+      note: 'Xe bán tải / SUV tải nhẹ nên ưu tiên lốp XL hoặc Load Range E chuyên dụng để tăng khả năng chở nặng an toàn.'
     });
   } else {
     checklist.push({
@@ -234,7 +261,45 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     });
   }
 
-  // 6. Kiểm tra DOT năm sản xuất (luôn warn)
+  // 6. Tiêu chuẩn OEM của hãng xe (nếu có)
+  if (spec.oeMarking) {
+    checklist.push({
+      label: 'Chuẩn hãng OEM',
+      status: 'ok',
+      note: `Ký hiệu ${spec.oeMarking.code} (${spec.oeMarking.brand}): ${spec.oeMarking.note}`
+    });
+  }
+
+  // 7. Lốp dự phòng khẩn cấp
+  if (spec.vehicleType === 'T') {
+    checklist.push({
+      label: 'Lốp dự phòng tạm thời',
+      status: 'warn',
+      note: 'Chỉ dùng tạm thời di chuyển về xưởng, giới hạn tốc độ <= 80 km/h, tuyệt đối không chạy đường dài.'
+    });
+  }
+
+  // 8. Các công nghệ & tính năng đặc thù (Run-flat, Gai địa hình, Số lớp bố)
+  if (spec.techFeatures && spec.techFeatures.length > 0) {
+    for (const feat of spec.techFeatures) {
+      checklist.push({
+        label: 'Tính năng công nghệ',
+        status: 'ok',
+        note: feat
+      });
+    }
+  }
+
+  // 9. Cảnh báo thông số bất thường (nếu có)
+  if (spec.validationWarning) {
+    checklist.push({
+      label: 'Kích thước bất thường',
+      status: 'error',
+      note: spec.validationWarning
+    });
+  }
+
+  // 10. Kiểm tra DOT năm sản xuất (luôn warn)
   checklist.push({
     label: 'Hạn sử dụng theo mã DOT',
     status: 'warn',
@@ -273,8 +338,14 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     });
   }
 
-  // Insight 2: Về Load Index (nếu có)
-  if (spec.loadIndex !== undefined) {
+  // Insight 2: Về Load Index & Dual Load (nếu có)
+  if (spec.dualLoadIndex && spec.dualLoadKg) {
+    insights.push({
+      topic: `Tải trọng kép (${spec.dualLoadIndex})`,
+      type: 'info',
+      content: `Khi lắp bánh đơn (cầu trước hoặc xe 4 bánh), tải trọng tối đa là ${spec.dualLoadKg.single} kg/lốp (tổng tải 4 bánh: ${(spec.dualLoadKg.singleTotal4).toLocaleString('vi-VN')} kg). Khi lắp bánh đôi (dual rear wheels), chỉ số giảm xuống ${spec.dualLoadKg.dual} kg/lốp để dự phòng bù trừ cân bằng mặt đường.`
+    });
+  } else if (spec.loadIndex !== undefined) {
     if (spec.loadIndex >= 100) {
       insights.push({
         topic: 'Chỉ số tải trọng cao',
@@ -315,13 +386,19 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       insights.push({
         topic: `Giới hạn tốc độ (${spec.speedRating})`,
         type: 'warning',
-        content: `Mã tốc độ ${spec.speedRating} (${spec.maxSpeedKmH ? `${spec.maxSpeedKmH} km/h` : ''}) có trần vận tốc thấp. Thường thấy trên lốp vượt địa hình gai thô (M/T) hoặc lốp xe tải. Chú ý không duy trì tốc độ cao liên tục trên đường trường.`
+        content: `Mã tốc độ ${spec.speedRating} (${spec.maxSpeedKmH ? `${spec.maxSpeedKmH} km/h` : ''}) có trần vận tốc thấp. Thường thấy trên lốp vượt địa hình gai thô (M/T), lốp dự phòng hoặc xe chuyên dụng. Chú ý không duy trì tốc độ cao liên tục.`
       });
     }
   }
 
-  // Insight 4: Về extraLoad (nếu có XL / RF / HL)
-  if (spec.extraLoad) {
+  // Insight 4: Về HL (High Load xe điện)
+  if (spec.vehicleType === 'HL' || spec.extraLoad === 'HL') {
+    insights.push({
+      topic: 'Chuẩn lốp xe điện High Load (HL)',
+      type: 'info',
+      content: 'Lốp HL (High Load Capacity) là tiêu chuẩn quốc tế mới được thiết kế đặc thù cho xe thuần điện (EV) và SUV hạng nặng có bộ pin lớn. Lốp chịu được tải trọng cao hơn lốp XL cùng kích thước tới 10-25% mà không cần mở rộng bề mặt lốp, giúp tối ưu hóa khí động học và tầm vận hành xe điện.'
+    });
+  } else if (spec.extraLoad) {
     insights.push({
       topic: `Lốp gia cường (${spec.extraLoad})`,
       type: 'tip',
@@ -329,7 +406,16 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     });
   }
 
-  // Insight 5: Về cấu trúc ZR (nếu có)
+  // Insight 5: Về chuẩn OEM
+  if (spec.oeMarking) {
+    insights.push({
+      topic: `Dấu ấn chính hãng (${spec.oeMarking.brand})`,
+      type: 'tip',
+      content: `Ký hiệu ${spec.oeMarking.code}: Lốp được thiết kế riêng theo đơn đặt hàng độc quyền của ${spec.oeMarking.brand}. Đã trải qua hàng trăm giờ tinh chỉnh để tương thích tối đa với hệ thống treo, trọng tâm xe và hệ thống cân bằng điện tử ESP của hãng.`
+    });
+  }
+
+  // Insight 6: Về cấu trúc ZR (nếu có)
   if (spec.construction === 'ZR') {
     insights.push({
       topic: 'Cấu trúc hiệu năng cao ZR',

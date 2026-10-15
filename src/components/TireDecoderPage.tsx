@@ -46,6 +46,7 @@ export const TireDecoderPage: React.FC = () => {
   // Ô nhập chuỗi lốp
   const [inputText, setInputText] = useState('P205/55R16 91V XL');
   const [parsedSpec, setParsedSpec] = useState<FullTireSpec | null>(() => parseFullTireString('P205/55R16 91V XL'));
+  const [parseError, setParseError] = useState<string | null>(null);
 
   // Trạng thái mở accordion FAQ của chuyên gia
   const [openFaqs, setOpenFaqs] = useState<number[]>([0]);
@@ -84,8 +85,12 @@ export const TireDecoderPage: React.FC = () => {
   const comparison = compareTires(currentCalc, newCalc);
 
   const handleParseInput = (textToParse: string) => {
+    setParseError(null);
     const result = parseFullTireString(textToParse);
     if (result) {
+      if (result.validationWarning) {
+        setParseError(result.validationWarning);
+      }
       setParsedSpec(result);
       setCurrentTire({
         width: result.width,
@@ -103,6 +108,8 @@ export const TireDecoderPage: React.FC = () => {
           rimDiameter: simple.rimDiameter,
           construction: 'R',
         });
+      } else {
+        setParseError(`Ký hiệu "${textToParse}" không đúng định dạng hoặc vượt quá quy chuẩn thực tế. Vui lòng kiểm tra lại (Ví dụ: 205/55R16 91V, LT265/75R16 123/120R E, P245/40ZR19 98Y XL MO...)`);
       }
     }
   };
@@ -207,23 +214,41 @@ export const TireDecoderPage: React.FC = () => {
                 </button>
               ))}
             </div>
+
+            {/* Thông báo lỗi hoặc cảnh báo validation nếu có */}
+            {parseError && (
+              <div className="mt-3 p-3 bg-amber-950/30 border border-[#c9a961]/50 text-amber-300 text-xs font-mono flex items-center gap-2">
+                <Warning size={18} className="text-[#c9a961] shrink-0" weight="bold" />
+                <span>{parseError}</span>
+              </div>
+            )}
           </div>
 
           {/* KẾT QUẢ GIẢI MÃ */}
           {parsedSpec && (
             <div className="space-y-6">
               {/* 4 Thẻ chỉ số chuẩn Quốc tế */}
-              {/* 4 Thẻ chỉ số chuẩn Quốc tế - Typography to rõ, sang trọng */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
+                {/* 1. Chỉ số tải trọng */}
                 <div className="bg-[#141311] p-5 sm:p-6 border border-[#23201b] hover:border-[#383329] transition">
                   <div className="text-xs text-slate-400 uppercase font-bold tracking-wider flex items-center justify-between">
                     <span>CHỈ SỐ TẢI TRỌNG</span>
                     <Truck size={18} className="text-[#c9a961]" />
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-[#c9a961] mt-2.5">
-                    {parsedSpec.loadIndex ? `${parsedSpec.loadIndex}` : '---'}
-                    {parsedSpec.maxLoadKg && (
-                      <span className="text-sm font-normal text-slate-200 ml-2">({parsedSpec.maxLoadKg} kg / lốp)</span>
+                    {parsedSpec.dualLoadIndex ? (
+                      <span className="text-xl sm:text-2xl">{parsedSpec.dualLoadIndex}</span>
+                    ) : (
+                      parsedSpec.loadIndex ? `${parsedSpec.loadIndex}` : '---'
+                    )}
+                    {parsedSpec.dualLoadKg ? (
+                      <span className="text-xs font-normal text-slate-200 block sm:inline ml-0 sm:ml-2">
+                        ({parsedSpec.dualLoadKg.single} kg đơn / {parsedSpec.dualLoadKg.dual} kg đôi)
+                      </span>
+                    ) : (
+                      parsedSpec.maxLoadKg && (
+                        <span className="text-sm font-normal text-slate-200 ml-2">({parsedSpec.maxLoadKg} kg / lốp)</span>
+                      )
                     )}
                   </div>
                   <span className="text-xs text-slate-400 mt-2 block font-sans">
@@ -233,6 +258,7 @@ export const TireDecoderPage: React.FC = () => {
                   </span>
                 </div>
 
+                {/* 2. Vận tốc tối đa */}
                 <div className="bg-[#141311] p-5 sm:p-6 border border-[#23201b] hover:border-[#383329] transition">
                   <div className="text-xs text-slate-400 uppercase font-bold tracking-wider flex items-center justify-between">
                     <span>VẬN TỐC TỐI ĐA</span>
@@ -249,30 +275,56 @@ export const TireDecoderPage: React.FC = () => {
                   </span>
                 </div>
 
+                {/* 3. Phân loại xe & Chuẩn OEM */}
                 <div className="bg-[#141311] p-5 sm:p-6 border border-[#23201b] hover:border-[#383329] transition">
                   <div className="text-xs text-slate-400 uppercase font-bold tracking-wider flex items-center justify-between">
                     <span>PHÂN LOẠI XE</span>
                     <CarProfile size={18} className="text-[#c9a961]" />
                   </div>
                   <div className="text-xl sm:text-2xl font-bold text-white mt-2.5">
-                    {parsedSpec.vehicleType ? `Tiền tố ${parsedSpec.vehicleType}` : 'Euro-Metric'}
+                    {parsedSpec.isFlotation 
+                      ? 'Hệ Inch Flotation' 
+                      : (parsedSpec.vehicleType ? `Tiền tố ${parsedSpec.vehicleType}` : 'Euro-Metric')}
                   </div>
                   <span className="text-xs text-slate-400 mt-2 block font-sans leading-relaxed">
-                    {parsedSpec.vehicleTypeDesc}
+                    {parsedSpec.isFlotation && parsedSpec.flotationSpec
+                      ? `Lốp ${parsedSpec.flotationSpec.diameterInch}" x ${parsedSpec.flotationSpec.widthInch}" mâm R${parsedSpec.flotationSpec.rimInch}" (quy đổi tương đương ~${parsedSpec.width}/${parsedSpec.aspectRatio}R${parsedSpec.rimDiameter})`
+                      : parsedSpec.vehicleTypeDesc}
                   </span>
+                  {parsedSpec.oeMarking && (
+                    <div className="mt-2.5 inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#1c1810] border border-[#c9a961]/50 text-[#c9a961] text-[11px] font-mono">
+                      <span>⭐ Chuẩn OEM: {parsedSpec.oeMarking.brand} ({parsedSpec.oeMarking.code})</span>
+                    </div>
+                  )}
                 </div>
 
+                {/* 4. Kết cấu chịu tải & Công nghệ */}
                 <div className="bg-[#141311] p-5 sm:p-6 border border-[#23201b] hover:border-[#383329] transition">
                   <div className="text-xs text-slate-400 uppercase font-bold tracking-wider flex items-center justify-between">
-                    <span>KẾT CẤU CHỊU TẢI</span>
+                    <span>KẾT CẤU & CÔNG NGHỆ</span>
                     <Gauge size={18} className="text-[#c9a961]" />
                   </div>
                   <div className="text-xl sm:text-2xl font-bold text-white mt-2.5">
-                    {parsedSpec.extraLoad ? `Chịu Tải ${parsedSpec.extraLoad}` : 'Tiêu Chuẩn (SL)'}
+                    {parsedSpec.loadRange 
+                      ? `Load Range ${parsedSpec.loadRange}` 
+                      : (parsedSpec.extraLoad ? `Chịu Tải ${parsedSpec.extraLoad}` : 'Tiêu Chuẩn (SL)')}
                   </div>
                   <span className="text-xs text-slate-400 mt-2 block font-sans leading-relaxed">
-                    {parsedSpec.extraLoad ? 'Thành lốp gia cố cho xe nặng / xe điện' : 'Áp suất tải tiêu chuẩn thông thường'}
+                    {parsedSpec.loadRangeDesc 
+                      ? parsedSpec.loadRangeDesc 
+                      : (parsedSpec.extraLoad === 'HL' 
+                          ? 'Chuẩn tải siêu cao (High Load) chuyên dụng xe điện / pin lớn' 
+                          : (parsedSpec.extraLoad ? 'Thành lốp gia cố cho xe nặng / xe điện' : 'Áp suất tải tiêu chuẩn thông thường'))}
                   </span>
+                  {parsedSpec.techFeatures && parsedSpec.techFeatures.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap gap-1">
+                      {parsedSpec.techFeatures.map((feat, idx) => (
+                        <span key={idx} className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-[#c9a961] text-[10px] font-mono">
+                          {feat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
