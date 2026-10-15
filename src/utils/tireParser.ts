@@ -71,8 +71,8 @@ export function parseFullTireString(input: string): FullTireSpec | null {
   let isFlotation = false;
   let flotationSpec: { diameterInch: number; widthInch: number; rimInch: number } | undefined;
 
-  // 2. Nhận diện Lốp Flotation hệ inch (Ví dụ: 33X12.50R15LT, 35X12.5R17)
-  const flotationRegex = /^(?<dia>\d{2}(?:\.\d{1,2})?)[xX](?<wInch>\d{1,2}(?:\.\d{1,2})?)\s*(?<construction>ZR|R|B|D)?\s*(?<rim>\d{2})\s*(?<type>LT)?(?:\s+(?<rest>.*))?$/;
+  // 2. Nhận diện Lốp Flotation hệ inch (Ví dụ: 33X12.50R15LT, LT35X12.5R17)
+  const flotationRegex = /^(?<typePre>LT)?\s*(?<dia>\d{2}(?:\.\d{1,2})?)[xX](?<wInch>\d{1,2}(?:\.\d{1,2})?)\s*(?<construction>ZR|R|B|D)?\s*(?<rim>\d{2})\s*(?<typePost>LT)?(?:\s+(?<rest>.*))?$/;
   const floatMatch = cleaned.match(flotationRegex);
 
   if (floatMatch && floatMatch.groups) {
@@ -81,7 +81,7 @@ export function parseFullTireString(input: string): FullTireSpec | null {
     const wInch = parseFloat(floatMatch.groups.wInch);
     rimDiameter = parseInt(floatMatch.groups.rim, 10);
     construction = floatMatch.groups.construction || 'R';
-    vehicleType = floatMatch.groups.type || 'LT';
+    vehicleType = floatMatch.groups.typePre || floatMatch.groups.typePost || 'LT';
 
     // Quy đổi từ inch sang hệ Metric (mm) để tính toán hình học
     width = Math.round(wInch * 25.4);
@@ -131,11 +131,13 @@ export function parseFullTireString(input: string): FullTireSpec | null {
     const tokens = restString.split(/\s+/).filter(Boolean);
 
     for (const token of tokens) {
-      // 5.1. Nhận diện Tải trọng & Tốc độ (Hỗ trợ cả dạng bọc ngoặc siêu xe như (103Y), 103(Y), (Y))
-      const loadSpeedMatch = token.match(/^(?:(?:\((?<loadA>\d{2,3}(?:\/\d{2,3})?)(?<speedA>[A-Z])\))|(?<loadB>\d{2,3}(?:\/\d{2,3})?)?\s*(?:\((?<speedB>[A-Z])\)|(?<speedC>[A-Z])))$/);
+      // 5.1. Nhận diện Tải trọng & Tốc độ
+      // Bắt buộc phải có chữ số Load Index đi kèm Speed Rating (ví dụ 91V, 123/120R, (103Y), 103(Y))
+      // Hoặc chỉ có mã tốc độ bọc ngoặc đặc thù siêu xe (Y)
+      const loadSpeedMatch = token.match(/^(?:(?:\((?<loadA>\d{2,3}(?:\/\d{2,3})?)(?<speedA>[A-Z])\))|(?<loadB>\d{2,3}(?:\/\d{2,3})?)\s*\((?<speedB>[A-Z])\)|(?<loadC>\d{2,3}(?:\/\d{2,3})?)(?<speedC>[A-Z]))$/);
       
       if (loadSpeedMatch && !loadIndex && !speedRating) {
-        const rawLoad = loadSpeedMatch.groups?.loadA || loadSpeedMatch.groups?.loadB;
+        const rawLoad = loadSpeedMatch.groups?.loadA || loadSpeedMatch.groups?.loadB || loadSpeedMatch.groups?.loadC;
         const rawSpeed = loadSpeedMatch.groups?.speedA || loadSpeedMatch.groups?.speedB || loadSpeedMatch.groups?.speedC;
 
         if (rawLoad) {
@@ -159,7 +161,8 @@ export function parseFullTireString(input: string): FullTireSpec | null {
         }
 
         if (rawSpeed) {
-          speedRating = loadSpeedMatch.groups?.speedB ? `(${rawSpeed})` : rawSpeed;
+          const isBracketed = Boolean(loadSpeedMatch.groups?.speedA || loadSpeedMatch.groups?.speedB);
+          speedRating = isBracketed ? `(${rawSpeed})` : rawSpeed;
         }
         continue;
       }
@@ -218,7 +221,9 @@ export function parseFullTireString(input: string): FullTireSpec | null {
   const maxLoadKg = loadIndex && LOAD_INDEX_TABLE[loadIndex] ? LOAD_INDEX_TABLE[loadIndex] : undefined;
   const maxTotalLoadKg = dualLoadKg ? dualLoadKg.singleTotal4 : (maxLoadKg ? maxLoadKg * 4 : undefined);
   const cleanSpeedKey = speedRating?.replace(/[()]/g, '');
-  const speedInfo = cleanSpeedKey && SPEED_RATING_TABLE[cleanSpeedKey] ? SPEED_RATING_TABLE[cleanSpeedKey] : undefined;
+  const speedInfo = (speedRating && SPEED_RATING_TABLE[speedRating]) 
+    || (cleanSpeedKey && SPEED_RATING_TABLE[cleanSpeedKey]) 
+    || undefined;
 
   return {
     rawString: cleaned,
