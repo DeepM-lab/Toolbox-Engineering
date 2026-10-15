@@ -74,13 +74,13 @@ export const VERIFICATION_CASES: VerificationCase[] = [
     conditionNotes: 'Đầu ra DC'
   },
   {
-    id: 'DM-083-Camping',
+    id: 'DM-035',
     categoryName: 'Camping',
-    testName: 'Pin 24V 200Ah (Wh)',
-    inputs: { Ns: 1, Np: 1, V_cell_nom: 24, Ah_cell: 200 },
-    expectedOutputs: { energyWh: 4800 },
+    testName: 'Máy lạnh RV 400W x 8h (Wh)',
+    inputs: { P_avg_W: 400, t_h: 8 },
+    expectedOutputs: { energy_Wh: 3200 },
     tolerance: 0.01,
-    conditionNotes: 'Danh định'
+    conditionNotes: 'Năng lượng điều hòa qua đêm'
   },
   {
     id: 'DM-101',

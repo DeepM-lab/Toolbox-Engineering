@@ -248,8 +248,7 @@ export const MechanicToolsPage: React.FC = () => {
 
   // Nạp nhanh bộ dữ liệu test case vào bàn tính
   const handleLoadTestCase = (testCase: VerificationCase) => {
-    let toolId = testCase.id;
-    if (toolId === 'DM-083-Camping') toolId = 'DM-083';
+    const toolId = testCase.id;
 
     setSelectedToolId(toolId);
     setFormInputs(prev => ({
@@ -338,16 +337,15 @@ export const MechanicToolsPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {VERIFICATION_CASES.map((tc, idx) => {
-              let targetId = tc.id === 'DM-083-Camping' ? 'DM-083' : tc.id;
-              const tool = ALL_TOOLS.find(t => t.id === targetId);
+            {VERIFICATION_CASES.map((tc) => {
+              const tool = ALL_TOOLS.find(t => t.id === tc.id);
               const testRun = tool ? tool.calculate(tc.inputs) : null;
               
               return (
-                <div key={idx} className="bg-[#12110f] border border-brand-border hover:border-[#3d3422] p-4 space-y-3 transition flex flex-col justify-between">
+                <div key={tc.id} className="bg-[#12110f] border border-brand-border hover:border-[#3d3422] p-4 space-y-3 transition flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-brand-gold font-bold">[{targetId}]</span>
+                      <span className="text-brand-gold font-bold">[{tc.id}]</span>
                       <span className="px-1.5 py-0.5 bg-emerald-950/80 text-emerald-400 text-[10px] font-bold border border-emerald-800/60">PASS</span>
                     </div>
                     <h3 className="font-bold text-white text-sm font-mono mt-1">{tc.testName}</h3>
