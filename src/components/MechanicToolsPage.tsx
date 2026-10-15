@@ -495,7 +495,7 @@ export const MechanicToolsPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             {/* CỘT TRÁI: DANH SÁCH TOOL DẠNG COMPACT LIST */}
-            <div className="lg:col-span-5 bg-[#12110f] border border-brand-border flex flex-col h-[750px]">
+            <div className="lg:col-span-5 bg-[#12110f] border border-brand-border flex flex-col h-187.5">
               <div className="p-3.5 border-b border-brand-border bg-[#161410] flex justify-between items-center text-sm font-mono">
                 <span className="font-bold text-slate-200 uppercase tracking-wider">
                   DANH SÁCH TOOL ({filteredTools.length}/135)

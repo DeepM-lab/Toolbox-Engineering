@@ -322,7 +322,7 @@ export const TireDecoderPage: React.FC = () => {
                         <span 
                           key={idx} 
                           title={item.desc}
-                          className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-[#c9a961] text-[10px] font-mono cursor-help"
+                          className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-brand-gold text-[10px] font-mono cursor-help"
                         >
                           {item.code} ({item.name})
                         </span>
@@ -337,7 +337,7 @@ export const TireDecoderPage: React.FC = () => {
                     parsedSpec.techFeatures && parsedSpec.techFeatures.length > 0 && (
                       <div className="mt-2.5 flex flex-wrap gap-1">
                         {parsedSpec.techFeatures.map((feat, idx) => (
-                          <span key={idx} className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-[#c9a961] text-[10px] font-mono">
+                          <span key={idx} className="px-2 py-0.5 bg-[#181611] border border-[#3d3422] text-brand-gold text-[10px] font-mono">
                             {feat}
                           </span>
                         ))}
@@ -357,7 +357,7 @@ export const TireDecoderPage: React.FC = () => {
                   }`}>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-6 sm:gap-8">
                       {/* Score Badge */}
-                      <div className={`shrink-0 text-center px-7 py-5 border flex flex-col justify-center sm:min-w-[170px] ${
+                      <div className={`shrink-0 text-center px-7 py-5 border flex flex-col justify-center sm:min-w-42.5 ${
                         advice.safetyColor === 'emerald' ? 'bg-emerald-950/30 border-emerald-500/40' :
                         advice.safetyColor === 'amber' ? 'bg-[#1a1711] border-brand-gold/40' : 'bg-rose-950/30 border-rose-500/40'
                       }`}>

@@ -74,7 +74,7 @@ export const VERIFICATION_CASES: VerificationCase[] = [
     conditionNotes: 'Đầu ra DC'
   },
   {
-    id: 'DM-083B',
+    id: 'DM-083-Camping',
     categoryName: 'Camping',
     testName: 'Pin 24V 200Ah (Wh)',
     inputs: { Ns: 1, Np: 1, V_cell_nom: 24, Ah_cell: 200 },
