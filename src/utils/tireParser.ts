@@ -58,9 +58,6 @@ export function parseFullTireString(input: string): FullTireSpec | null {
   cleaned = cleaned.replace(/(\d+)\s*\/\s*(\d+)/g, '$1/$2');
   // Gộp khoảng trắng quanh dấu x ví dụ "33 x 12.5" -> "33X12.5"
   cleaned = cleaned.replace(/(\d+)\s*[xX]\s*(\d+)/g, '$1X$2');
-  // Gộp khoảng trắng trước/sau ký hiệu mâm ví dụ "55 R 16" -> "55R16", "55 ZR 19" -> "55ZR19"
-  cleaned = cleaned.replace(/(\d+)\s+(ZR|R|B|D)\s*(\d+)/g, '$1$2$3');
-  cleaned = cleaned.replace(/(\d+)(ZR|R|B|D)\s+(\d+)/g, '$1$2$3');
 
   let width = 0;
   let aspectRatio = 80; // Mặc định cho lốp khuyết tỷ lệ hông (như 195R15C)
@@ -191,20 +188,33 @@ export function parseFullTireString(input: string): FullTireSpec | null {
         continue;
       }
 
-      // 5.5. Nhận diện Công nghệ lốp & Ký hiệu địa hình từ TERRAIN_TECH_SPECS
-      if (TERRAIN_TECH_SPECS[token]) {
-        const spec = TERRAIN_TECH_SPECS[token];
-        terrainOrTech.push({ code: token, name: spec.name, desc: spec.desc });
-        techFeatures.push(`${token} - ${spec.name}`);
+      // 5.5. Nhận diện Công nghệ lốp & Ký hiệu địa hình từ TERRAIN_TECH_SPECS (chuẩn hóa alias)
+      const TERRAIN_ALIAS: Record<string, string> = {
+        HT: 'H/T',
+        AT: 'A/T',
+        MT: 'M/T',
+        RT: 'R/T',
+        'M/S': 'M+S',
+        MS: 'M+S'
+      };
+      const normTerrain = TERRAIN_ALIAS[token] || token;
+      if (TERRAIN_TECH_SPECS[normTerrain]) {
+        const spec = TERRAIN_TECH_SPECS[normTerrain];
+        terrainOrTech.push({ code: normTerrain, name: spec.name, desc: spec.desc });
+        techFeatures.push(`${normTerrain} - ${spec.name}`);
         continue;
       }
 
-      // 5.6. Nhận diện OE Marking hãng xe
-      if (OE_MARKINGS[token]) {
+      // 5.6. Nhận diện OE Marking hãng xe (chuẩn hóa alias)
+      const OE_ALIAS: Record<string, string> = {
+        STAR: '*'
+      };
+      const normOe = OE_ALIAS[token] || token;
+      if (OE_MARKINGS[normOe]) {
         oeMarking = {
-          code: token,
-          brand: OE_MARKINGS[token].brand,
-          note: OE_MARKINGS[token].note
+          code: normOe,
+          brand: OE_MARKINGS[normOe].brand,
+          note: OE_MARKINGS[normOe].note
         };
         continue;
       }
