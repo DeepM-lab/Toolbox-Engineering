@@ -44,6 +44,8 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     // 1. Đánh giá Load Index khi có nhập
     if (!spec.loadIndex) {
       score -= 15;
+    } else if (!spec.maxLoadKg) {
+      score -= 30; // Chỉ số tải không tồn tại trong quy chuẩn
     } else if (spec.loadIndex < 70) {
       score -= 25; // Quá thấp, nguy hiểm
     } else if (spec.loadIndex >= 70 && spec.loadIndex <= 78) {
@@ -53,6 +55,8 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     // 2. Đánh giá Speed Rating khi có nhập
     if (!spec.speedRating) {
       score -= 10;
+    } else if (!spec.maxSpeedKmH) {
+      score -= 20; // Mã tốc độ không xác định
     } else {
       const sr = spec.speedRating.replace(/[()]/g, '').toUpperCase();
       if (sr === 'L' || sr === 'M') {
@@ -141,25 +145,33 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
 
   // 1. Chỉ số tải trọng
   if (spec.loadIndex !== undefined) {
-    const loadKg = spec.maxLoadKg ? `${spec.maxLoadKg} kg/lốp` : '';
-    if (spec.loadIndex >= 82) {
-      checklist.push({
-        label: 'Chỉ số tải trọng',
-        status: 'ok',
-        note: `Chỉ số ${spec.loadIndex} (${loadKg}) — đủ tải cho hầu hết xe du lịch và SUV gia đình.`
-      });
-    } else if (spec.loadIndex >= 75) {
-      checklist.push({
-        label: 'Chỉ số tải trọng',
-        status: 'warn',
-        note: `Chỉ số ${spec.loadIndex} (${loadKg}) — chỉ phù hợp xe đô thị cỡ nhỏ dưới 1.2 tấn.`
-      });
-    } else {
+    if (!spec.maxLoadKg) {
       checklist.push({
         label: 'Chỉ số tải trọng',
         status: 'error',
-        note: `Chỉ số ${spec.loadIndex} (${loadKg}) — tải trọng quá thấp, nguy hiểm khi tải nặng hoặc chạy tốc độ cao.`
+        note: `Chỉ số tải ${spec.loadIndex} không tồn tại trong bảng quy chuẩn quốc tế (60–130).`
       });
+    } else {
+      const loadKg = `${spec.maxLoadKg} kg/lốp`;
+      if (spec.loadIndex >= 82) {
+        checklist.push({
+          label: 'Chỉ số tải trọng',
+          status: 'ok',
+          note: `Chỉ số ${spec.loadIndex} (${loadKg}) — đủ tải cho hầu hết xe du lịch và SUV gia đình.`
+        });
+      } else if (spec.loadIndex >= 75) {
+        checklist.push({
+          label: 'Chỉ số tải trọng',
+          status: 'warn',
+          note: `Chỉ số ${spec.loadIndex} (${loadKg}) — chỉ phù hợp xe đô thị cỡ nhỏ dưới 1.2 tấn.`
+        });
+      } else {
+        checklist.push({
+          label: 'Chỉ số tải trọng',
+          status: 'error',
+          note: `Chỉ số ${spec.loadIndex} (${loadKg}) — tải trọng quá thấp, nguy hiểm khi tải nặng hoặc chạy tốc độ cao.`
+        });
+      }
     }
   } else {
     checklist.push({
@@ -190,6 +202,12 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
         note: `Mã ${spec.speedRating} chỉ đạt ${spec.maxSpeedKmH} km/h — không an toàn khi lưu thông trên cao tốc.`
       });
     }
+  } else if (spec.speedRating) {
+    checklist.push({
+      label: 'Giới hạn tốc độ cao tốc',
+      status: 'error',
+      note: `Mã tốc độ "${spec.speedRating}" không nằm trong bảng quy chuẩn quốc tế. Cần kiểm tra lại ký hiệu.`
+    });
   } else {
     checklist.push({
       label: 'Giới hạn tốc độ cao tốc',
@@ -345,7 +363,7 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       type: 'info',
       content: `Khi lắp bánh đơn (cầu trước hoặc xe 4 bánh), tải trọng tối đa là ${spec.dualLoadKg.single} kg/lốp (tổng tải 4 bánh: ${(spec.dualLoadKg.singleTotal4).toLocaleString('vi-VN')} kg). Khi lắp bánh đôi (dual rear wheels), chỉ số giảm xuống ${spec.dualLoadKg.dual} kg/lốp để dự phòng bù trừ cân bằng mặt đường.`
     });
-  } else if (spec.loadIndex !== undefined) {
+  } else if (spec.loadIndex !== undefined && spec.maxLoadKg !== undefined) {
     if (spec.loadIndex >= 100) {
       insights.push({
         topic: 'Chỉ số tải trọng cao',
