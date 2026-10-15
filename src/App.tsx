@@ -7,6 +7,11 @@ import { CircleNotch, Wrench, ShieldCheck } from '@phosphor-icons/react';
 export default function App() {
   const [activeTab, setActiveTab] = useState<'tire' | 'mechanic'>('tire');
 
+  const handleTabChange = (tab: 'tire' | 'mechanic') => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-brand-bg text-[#e5e5e5] flex flex-col font-sans selection:bg-brand-gold selection:text-black">
       {/* HEADER THEO PHONG CÁCH CHUẨN DEEPM.VN */}
@@ -14,13 +19,17 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
           {/* Logo DeepM chuẩn như web deepm.vn */}
-          <div className="flex items-center gap-3">
-            <div className="border border-white/80 px-2.5 py-1 text-center bg-black leading-none">
+          <div 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-3 cursor-pointer group"
+            title="Cuộn lên đầu trang"
+          >
+            <div className="border border-white/80 px-2.5 py-1 text-center bg-black leading-none group-hover:border-brand-gold transition">
               <div className="text-[14px] font-black tracking-tighter text-white">DM</div>
               <div className="text-[9px] font-bold tracking-tight text-white border-t border-white/40 mt-0.5 pt-0.5">DeepM</div>
             </div>
             <div>
-              <div className="font-extrabold text-white tracking-wider text-sm leading-none flex items-center gap-2">
+              <div className="font-extrabold text-white tracking-wider text-sm leading-none flex items-center gap-2 group-hover:text-brand-gold transition">
                 DEEPM LAB <span className="text-[9px] uppercase px-1.5 py-0.5 bg-[#1f1b13] text-brand-gold font-mono border border-[#3d3422]">R&D CENTER</span>
               </div>
               <div className="text-[10px] text-slate-400 font-mono mt-1">AUTOMOTIVE ENGINEERING TOOLBOX</div>
@@ -31,7 +40,7 @@ export default function App() {
           <div className="flex items-center gap-4">
             <nav className="flex items-center gap-2 bg-brand-card p-1.5 border border-brand-border">
               <button
-                onClick={() => setActiveTab('tire')}
+                onClick={() => handleTabChange('tire')}
                 className={`flex items-center gap-2 px-5 py-2.5 text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                   activeTab === 'tire'
                     ? 'bg-brand-gold text-brand-bg'
@@ -43,7 +52,7 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => setActiveTab('mechanic')}
+                onClick={() => handleTabChange('mechanic')}
                 className={`flex items-center gap-2 px-5 py-2.5 text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                   activeTab === 'mechanic'
                     ? 'bg-brand-gold text-brand-bg'

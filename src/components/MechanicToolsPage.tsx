@@ -259,6 +259,7 @@ export const MechanicToolsPage: React.FC = () => {
       }
     }));
     setActiveMode('calculator');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
