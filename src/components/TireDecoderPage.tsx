@@ -822,7 +822,7 @@ export const TireDecoderPage: React.FC = () => {
               <div className="bg-brand-bg p-5 border border-brand-border hover:border-[#383329] transition">
                 <span className="text-xs text-slate-400 block uppercase font-bold tracking-wider">CHÊNH LỆCH VÒNG QUAY / KM</span>
                 <div className="text-2xl sm:text-3xl font-bold text-slate-100 mt-2">
-                  {newCalc.revsPerKm - currentCalc.revsPerKm} vòng
+                  {newCalc.revsPerKm - currentCalc.revsPerKm > 0 ? `+${newCalc.revsPerKm - currentCalc.revsPerKm}` : newCalc.revsPerKm - currentCalc.revsPerKm} vòng
                 </div>
                 <span className="text-xs text-slate-400 mt-1.5 block">
                   Zin: {currentCalc.revsPerKm} | Mới: {newCalc.revsPerKm}
@@ -830,7 +830,7 @@ export const TireDecoderPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Cảnh báo an toàn */}
+            {/* Cảnh báo an toàn phân biệt rõ Tăng đường kính vs Giảm đường kính */}
             {Math.abs(comparison.diameterDiffPercent) > 3 ? (
               <div className="bg-[#1a1610] border border-brand-gold/50 p-5 sm:p-6 flex items-start gap-4">
                 <Warning size={24} className="text-brand-gold shrink-0 mt-0.5" weight="fill" />
@@ -839,7 +839,15 @@ export const TireDecoderPage: React.FC = () => {
                     CẢNH BÁO: SAI SỐ ĐƯỜNG KÍNH VƯỢT QUÁ TIÊU CHUẨN (±3%)
                   </div>
                   <p className="text-slate-200 leading-relaxed font-sans text-xs sm:text-sm">
-                    Đường kính lệch <strong className="text-white font-mono">{comparison.diameterDiffPercent}%</strong>. Cần lưu ý kiểm tra khoảng hở vè chắn bùn khi đánh hết lái hoặc khi phuộc nhún hết hành trình để tránh cạ lốp. Đồng hồ tốc độ ODO sẽ hiển thị chậm hơn thực tế, cần chú ý khi qua các cung đường có biển giới hạn tốc độ.
+                    {comparison.diameterDiffPercent > 0 ? (
+                      <>
+                        Đường kính tăng <strong className="text-white font-mono">+{comparison.diameterDiffPercent}%</strong> (+{comparison.diameterDiffMm} mm). Cần kiểm tra khoảng hở hốc bánh và vè chắn bùn khi đánh hết lái hoặc khi phuộc nhún hết hành trình để tránh cạ lốp. Đồng hồ tốc độ ODO sẽ báo <strong className="text-white">thấp hơn tốc độ thực tế</strong> (dễ vi phạm quá tốc độ).
+                      </>
+                    ) : (
+                      <>
+                        Đường kính giảm <strong className="text-white font-mono">{comparison.diameterDiffPercent}%</strong> ({comparison.diameterDiffMm} mm), làm gầm xe bị hạ thấp <strong className="text-rose-400 font-mono">{Math.abs(comparison.rideHeightDiffMm)} mm</strong>. Nguy cơ cạ gầm, chạm cản hoặc đáy các-te dầu khi qua ổ gà/gờ giảm tốc cao, đồng thời khả năng chịu tải của lốp có thể bị suy giảm. Đồng hồ tốc độ ODO sẽ báo <strong className="text-white">cao hơn tốc độ thực tế</strong>.
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -863,11 +871,17 @@ export const TireDecoderPage: React.FC = () => {
                 <Wrench size={18} /> LỜI KHUYÊN THỰC TẾ KHI ĐỘ LỐP — DEEPM LAB
               </div>
               <ul className="space-y-2.5 font-sans text-xs sm:text-sm">
-                {/* Tự sinh theo delta */}
-                {Math.abs(newTire.width - currentTire.width) > 20 && (
+                {/* Tự sinh theo delta bề rộng */}
+                {newTire.width - currentTire.width > 20 && (
                   <li className="flex gap-2.5 text-amber-400">
                     <Warning size={16} className="shrink-0 mt-0.5" />
-                    <span>Chiều rộng tăng <b className="text-white font-mono">{newTire.width - currentTire.width}mm</b> — Kiểm tra khoảng hở vè chắn bùn khi đánh hết lái và phuộc nhún hết hành trình.</span>
+                    <span>Bề rộng lốp tăng <b className="text-white font-mono">+{newTire.width - currentTire.width} mm</b> — Kiểm tra khoảng hở vè chắn bùn và càng chữ A khi đánh hết lái hoặc khi phuộc nhún hết hành trình.</span>
+                  </li>
+                )}
+                {currentTire.width - newTire.width > 20 && (
+                  <li className="flex gap-2.5 text-amber-400">
+                    <Warning size={16} className="shrink-0 mt-0.5" />
+                    <span>Bề rộng lốp thu hẹp <b className="text-white font-mono">-{currentTire.width - newTire.width} mm</b> — Diện tích mặt gai tiếp xúc đường giảm, cần lưu ý quãng đường phanh và độ bám đường khi vào cua tốc độ cao.</span>
                   </li>
                 )}
                 {Math.abs(comparison.diameterDiffPercent) > 3 && (
