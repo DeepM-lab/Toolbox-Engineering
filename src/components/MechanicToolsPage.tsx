@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { exportCalculationToExcel, type CalculationResult } from '../utils/excelExport';
 import { ALL_TOOLS, TOOL_CATEGORIES, getInputMin, type ToolDefinition } from '../data/engineeringTools';
 import { VERIFICATION_CASES, type VerificationCase } from '../data/testCases';
+import { useLocalStorage } from '../utils/useLocalStorage';
 import { 
   FileXls, 
   Plus, 
@@ -22,24 +23,24 @@ import {
 
 export const MechanicToolsPage: React.FC = () => {
   // Tab chế độ: Bàn tính hoặc Kiểm thử nghiệm chứng
-  const [activeMode, setActiveMode] = useState<'calculator' | 'verification'>('calculator');
+  const [activeMode, setActiveMode] = useLocalStorage<'calculator' | 'verification'>('deepm_mech_mode', 'calculator');
 
   // Thông tin xe & khách hàng
-  const [vehicleInfo, setVehicleInfo] = useState({
+  const [vehicleInfo, setVehicleInfo] = useLocalStorage('deepm_mech_vehicle', {
     customerName: 'Anh ABC - DeepM',
     carModel: 'Mitsubishi Triton 4N15 / Land Cruiser LC80',
     licensePlate: '30K-888.88',
   });
 
   // Bộ lọc danh mục & tìm kiếm
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useLocalStorage<string>('deepm_mech_category', 'all');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
 
   // Tool đang được kích hoạt tính toán
-  const [selectedToolId, setSelectedToolId] = useState<string>('DM-001');
+  const [selectedToolId, setSelectedToolId] = useLocalStorage<string>('deepm_mech_tool_id', 'DM-001');
 
   // Giá trị đầu vào động cho từng Tool (cho phép lưu string rỗng khi người dùng đang gõ/xóa)
-  const [formInputs, setFormInputs] = useState<Record<string, Record<string, number | string>>>(() => {
+  const [formInputs, setFormInputs] = useLocalStorage<Record<string, Record<string, number | string>>>('deepm_mech_inputs', () => {
     const initial: Record<string, Record<string, number | string>> = {};
     ALL_TOOLS.forEach((tool) => {
       initial[tool.id] = {};
@@ -51,7 +52,7 @@ export const MechanicToolsPage: React.FC = () => {
   });
 
   // Danh sách các phép tính đã lưu để xuất file Excel
-  const [savedCalculations, setSavedCalculations] = useState<CalculationResult[]>([]);
+  const [savedCalculations, setSavedCalculations] = useLocalStorage<CalculationResult[]>('deepm_mech_saved_calcs', []);
 
   // Lọc danh sách công cụ
   const filteredTools = ALL_TOOLS.filter((tool) => {
@@ -235,6 +236,13 @@ export const MechanicToolsPage: React.FC = () => {
   // Xóa 1 mục
   const handleRemoveCalculation = (index: number) => {
     setSavedCalculations(savedCalculations.filter((_, i) => i !== index));
+  };
+
+  // Xóa toàn bộ danh sách để bắt đầu làm xe mới
+  const handleClearAllCalculations = () => {
+    if (window.confirm('Bạn có chắc chắn muốn làm mới phiếu (xóa toàn bộ các phép tính đã lưu)?')) {
+      setSavedCalculations([]);
+    }
   };
 
   // Xuất file Excel
@@ -734,13 +742,25 @@ export const MechanicToolsPage: React.FC = () => {
                 </p>
               </div>
 
-              <button
-                onClick={handleExportExcel}
-                className="flex items-center gap-2 px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-hover text-brand-bg font-mono text-xs uppercase tracking-wider font-bold transition cursor-pointer shadow-md self-start sm:self-auto"
-              >
-                <FileXls size={16} weight="bold" />
-                Kết Xuất File Excel (.xlsx) Ngay
-              </button>
+              <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+                {savedCalculations.length > 0 && (
+                  <button
+                    onClick={handleClearAllCalculations}
+                    className="flex items-center gap-1.5 px-3 py-2.5 bg-[#181612] hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-brand-border hover:border-rose-500/40 font-mono text-xs uppercase tracking-wider transition cursor-pointer"
+                    title="Xóa tất cả các phép tính đã lưu để bắt đầu xe mới"
+                  >
+                    <Trash size={15} />
+                    <span>Làm Mới Phiếu</span>
+                  </button>
+                )}
+                <button
+                  onClick={handleExportExcel}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-hover text-brand-bg font-mono text-xs uppercase tracking-wider font-bold transition cursor-pointer shadow-md"
+                >
+                  <FileXls size={16} weight="bold" />
+                  Kết Xuất File Excel (.xlsx) Ngay
+                </button>
+              </div>
             </div>
 
             {savedCalculations.length === 0 ? (

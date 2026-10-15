@@ -1,11 +1,11 @@
-import { useState } from 'react';
 import { TireDecoderPage } from './components/TireDecoderPage';
 import { MechanicToolsPage } from './components/MechanicToolsPage';
 import { ContactSection } from './components/ContactSection';
 import { CircleNotch, Wrench, ShieldCheck } from '@phosphor-icons/react';
+import { useLocalStorage } from './utils/useLocalStorage';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tire' | 'mechanic'>('tire');
+  const [activeTab, setActiveTab] = useLocalStorage<'tire' | 'mechanic'>('deepm_active_tab', 'tire');
 
   const handleTabChange = (tab: 'tire' | 'mechanic') => {
     setActiveTab(tab);

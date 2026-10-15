@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TireVisualizer } from './TireVisualizer';
 import { calculateTire, compareTires, parseTireString, type TireParams } from '../utils/tireCalculations';
 import { parseFullTireString, type FullTireSpec } from '../utils/tireParser';
+import { useLocalStorage } from '../utils/useLocalStorage';
 import { 
   OE_MARKINGS, 
   TERRAIN_TECH_SPECS, 
@@ -41,11 +42,11 @@ const POPULAR_TIRES = [
 
 export const TireDecoderPage: React.FC = () => {
   // Tabs: 'decode' (Giải mã chuỗi), 'compare' (So sánh Zin vs Độ), 'knowledge' (Cẩm nang & Báo mòn chi tiết)
-  const [mode, setMode] = useState<'decode' | 'compare' | 'knowledge'>('decode');
+  const [mode, setMode] = useLocalStorage<'decode' | 'compare' | 'knowledge'>('deepm_tire_mode', 'decode');
 
   // Ô nhập chuỗi lốp
-  const [inputText, setInputText] = useState('P205/55R16 91V XL');
-  const [parsedSpec, setParsedSpec] = useState<FullTireSpec | null>(() => parseFullTireString('P205/55R16 91V XL'));
+  const [inputText, setInputText] = useLocalStorage<string>('deepm_tire_input', 'P205/55R16 91V XL');
+  const [parsedSpec, setParsedSpec] = useState<FullTireSpec | null>(() => parseFullTireString(inputText) || parseFullTireString('P205/55R16 91V XL'));
   const [parseError, setParseError] = useState<string | null>(null);
 
   // Trạng thái mở accordion FAQ của chuyên gia
@@ -60,25 +61,32 @@ export const TireDecoderPage: React.FC = () => {
   const advice = parsedSpec ? generateExpertAdvice(parsedSpec) : null;
 
   // Ô tra cứu mã tuần/năm DOT sản xuất
-  const [dotInput, setDotInput] = useState('4721'); // Tuần 47 năm 2021
+  const [dotInput, setDotInput] = useLocalStorage<string>('deepm_tire_dot', '4721'); // Tuần 47 năm 2021
   const dotResult = parseDotCode(dotInput);
 
   // Ô tra cứu áp suất lốp tối đa (MAX PRESS)
-  const [maxPressInput, setMaxPressInput] = useState(51); // PSI
+  const [maxPressInput, setMaxPressInput] = useLocalStorage<number>('deepm_tire_maxpress', 51); // PSI
 
   // Lốp hiện tại
-  const [currentTire, setCurrentTire] = useState<TireParams>({
+  const [currentTire, setCurrentTire] = useLocalStorage<TireParams>('deepm_tire_current', {
     width: 205,
     aspectRatio: 55,
     rimDiameter: 16,
   });
 
   // Lốp mới khi so sánh độ lốp
-  const [newTire, setNewTire] = useState<TireParams>({
+  const [newTire, setNewTire] = useLocalStorage<TireParams>('deepm_tire_new', {
     width: 225,
     aspectRatio: 50,
     rimDiameter: 17,
   });
+
+  // Tự động phân tích lại khi tải lại trang
+  useEffect(() => {
+    if (inputText) {
+      handleParseInput(inputText);
+    }
+  }, []);
 
   const currentCalc = calculateTire(currentTire);
   const newCalc = calculateTire(newTire);
