@@ -38,9 +38,22 @@ export function exportCalculationToExcel(results: CalculationResult[], vehicleIn
       .map((v) => `${v.label}: ${v.value} ${v.unit}`)
       .join('\n');
 
-    // Format output strings
+    // Format output strings (bảo vệ kép: không để lọt Infinity hoặc NaN ra file Excel)
     const outputsStr = Object.values(item.outputs)
-      .map((v) => `${v.label}: ${v.value} ${v.unit}`)
+      .map((v) => {
+        let displayVal = v.value;
+        if (typeof displayVal === 'number') {
+          if (isNaN(displayVal) || !isFinite(displayVal)) {
+            displayVal = '[Lỗi tham số]';
+          }
+        } else if (typeof displayVal === 'string') {
+          const lower = displayVal.toLowerCase();
+          if (lower.includes('infinity') || lower.includes('nan') || lower.includes('vô cực')) {
+            displayVal = '[Lỗi chia 0 / Căn số âm]';
+          }
+        }
+        return `${v.label}: ${displayVal} ${v.unit}`;
+      })
       .join('\n');
 
     sheetData.push([

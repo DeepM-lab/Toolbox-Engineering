@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { exportCalculationToExcel, type CalculationResult } from '../utils/excelExport';
-import { ALL_TOOLS, TOOL_CATEGORIES, type ToolDefinition } from '../data/engineeringTools';
+import { ALL_TOOLS, TOOL_CATEGORIES, getInputMin, type ToolDefinition } from '../data/engineeringTools';
 import { VERIFICATION_CASES, type VerificationCase } from '../data/testCases';
 import { 
   FileXls, 
@@ -71,17 +71,22 @@ export const MechanicToolsPage: React.FC = () => {
   const { calculationResult, hasEmptyParam, emptyParamLabel } = (() => {
     const sanitizedInputs: Record<string, number> = {};
     let emptyParam: string | null = null;
+    let invalidMinParam: { label: string; minVal: number; unit: string; currentVal: number } | null = null;
 
-    currentTool.inputs.forEach((inp) => {
+    for (const inp of currentTool.inputs) {
       const rawVal = currentInputs[inp.key];
       if (rawVal === '' || rawVal === undefined || rawVal === null) {
         if (!emptyParam) emptyParam = inp.label;
         sanitizedInputs[inp.key] = 0;
       } else {
         const num = Number(rawVal);
+        const minVal = getInputMin(inp);
+        if (!isNaN(num) && num < minVal && !invalidMinParam) {
+          invalidMinParam = { label: inp.label, minVal, unit: inp.unit, currentVal: num };
+        }
         sanitizedInputs[inp.key] = isNaN(num) ? 0 : num;
       }
-    });
+    }
 
     if (emptyParam) {
       return {
@@ -92,6 +97,19 @@ export const MechanicToolsPage: React.FC = () => {
           notes: `Vui lòng nhập giá trị cho tham số "${emptyParam}" để hệ thống tính toán.`,
           hasMathError: true,
           errorMessage: `Thiếu tham số "${emptyParam}"`
+        }
+      };
+    }
+
+    if (invalidMinParam) {
+      return {
+        hasEmptyParam: false,
+        emptyParamLabel: '',
+        calculationResult: {
+          outputs: {},
+          notes: `⚠️ Tham số "${invalidMinParam.label}" (${invalidMinParam.currentVal} ${invalidMinParam.unit}) không được nhỏ hơn ngưỡng tối thiểu ${invalidMinParam.minVal} ${invalidMinParam.unit}. Vui lòng nhập giá trị hợp lệ!`,
+          hasMathError: true,
+          errorMessage: `Tham số "${invalidMinParam.label}" < ${invalidMinParam.minVal}`
         }
       };
     }
@@ -115,6 +133,22 @@ export const MechanicToolsPage: React.FC = () => {
           } else {
             cleanOutputs[k] = out;
           }
+        } else if (typeof out.value === 'string') {
+          const lowerStr = out.value.toLowerCase();
+          if (
+            lowerStr.includes('không hợp lệ') ||
+            lowerStr.includes('vô cực') ||
+            lowerStr.includes('nan') ||
+            lowerStr.includes('infinity')
+          ) {
+            hasMathError = true;
+            if (!mathErrorMessage) {
+              mathErrorMessage = out.value.includes('(')
+                ? out.value
+                : 'Kết quả tính toán không hợp lệ do vi phạm điều kiện vật lý / toán học.';
+            }
+          }
+          cleanOutputs[k] = out;
         } else {
           cleanOutputs[k] = out;
         }
@@ -587,6 +621,7 @@ export const MechanicToolsPage: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {currentTool.inputs.map((inp) => {
                     const val = currentInputs[inp.key] ?? inp.defaultVal;
+                    const minVal = getInputMin(inp);
                     return (
                       <div key={inp.key} className="bg-[#0c0b0a] border border-[#23201b] p-3.5 focus-within:border-[#c9a961] transition">
                         <div className="flex justify-between items-center text-sm mb-1.5">
@@ -596,6 +631,8 @@ export const MechanicToolsPage: React.FC = () => {
                         <input
                           type="number"
                           step={inp.step || 'any'}
+                          min={minVal}
+                          max={inp.max}
                           value={val === '' ? '' : val}
                           placeholder={`Mặc định: ${inp.defaultVal}`}
                           onChange={(e) => handleInputChange(currentTool.id, inp.key, e.target.value)}

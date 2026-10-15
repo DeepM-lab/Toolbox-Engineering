@@ -7,7 +7,31 @@ export interface ToolInputDef {
   unit: string;
   defaultVal: number;
   step?: number;
+  min?: number;
+  max?: number;
   hint?: string;
+}
+
+// Danh sách các biến ĐƯỢC PHÉP NHẬP SỐ ÂM kèm ngưỡng giới hạn an toàn
+export const ALLOW_NEGATIVE_KEYS: Record<string, number> = {
+  'ET_mm': -150,     // Độ lệch tâm mâm âm cực đại cho xe off-road/drift (mâm âm)
+  'ET_old': -150,
+  'ET_new': -150,
+  'T1_C': -50,       // Nhiệt độ khí nạp âm khi xe chạy xứ lạnh/mùa đông (-5°C, -15°C...)
+  'theta_deg': -45,  // Góc dốc âm khi xe xuống dốc (downhill)
+  'F_grade': -20000, // Lực dốc hỗ trợ đẩy xe khi đổ đèo
+};
+
+/**
+ * Trả về giá trị min cho ô input:
+ * - Nếu input có cấu hình min riêng: ưu tiên dùng input.min
+ * - Nếu key nằm trong danh sách trắng ALLOW_NEGATIVE_KEYS: trả về giá trị âm tương ứng
+ * - Mặc định: 0 (chặn số âm cho 95% các đại lượng vật lý đo lường thế giới thực)
+ */
+export function getInputMin(input: ToolInputDef): number {
+  if (input.min !== undefined) return input.min;
+  if (input.key in ALLOW_NEGATIVE_KEYS) return ALLOW_NEGATIVE_KEYS[input.key];
+  return 0;
 }
 
 export interface ToolDefinition {
