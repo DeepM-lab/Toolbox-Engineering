@@ -992,7 +992,7 @@ export const TireDecoderPage: React.FC = () => {
                 <div className="space-y-1.5 pt-2 border-t border-[#1f1b15]">
                   {UTQG_DATA.traction.levels.map((lvl) => (
                     <div key={lvl.grade} className="flex gap-2 text-xs sm:text-sm">
-                      <span className="font-bold text-brand-gold font-mono min-w-[28px]">{lvl.grade}:</span>
+                      <span className="font-bold text-brand-gold font-mono min-w-7">{lvl.grade}:</span>
                       <span className="text-slate-300 font-sans">{lvl.desc}</span>
                     </div>
                   ))}
@@ -1007,7 +1007,7 @@ export const TireDecoderPage: React.FC = () => {
                 <div className="space-y-1.5 pt-2 border-t border-[#1f1b15]">
                   {UTQG_DATA.temperature.levels.map((lvl) => (
                     <div key={lvl.grade} className="flex gap-2 text-xs sm:text-sm">
-                      <span className="font-bold text-brand-gold font-mono min-w-[24px]">{lvl.grade}:</span>
+                      <span className="font-bold text-brand-gold font-mono min-w-6">{lvl.grade}:</span>
                       <span className="text-slate-300 font-sans">{lvl.desc}</span>
                     </div>
                   ))}
