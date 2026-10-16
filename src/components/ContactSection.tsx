@@ -94,7 +94,7 @@ export const ContactSection: React.FC = () => {
           </p>
           <div className="text-[11px] sm:text-sm font-mono text-slate-400 pt-1 flex items-center justify-center gap-1.5 sm:gap-2">
             <Clock size={15} />
-            <span>Thứ 2 – Thứ 7: 8:15 – 17:30 (nghỉ trưa 12:00 – 14:00)</span>
+            <span>Thứ 2 – Thứ 7: 8:15 – 17:30</span>
           </div>
         </a>
 

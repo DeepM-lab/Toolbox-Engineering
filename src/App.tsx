@@ -94,18 +94,9 @@ export default function App() {
 
               {/* Nút Gọi Hotline & Liên Hệ Desktop */}
               <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
-                <a
-                  href="tel:0982502609"
-                  className="flex items-center gap-1.5 px-3 py-2 bg-brand-card hover:bg-[#1c1913] border border-brand-border hover:border-brand-gold text-xs font-mono font-bold text-brand-gold transition"
-                  title="Gọi hotline DeepM"
-                >
-                  <Phone size={15} weight="fill" />
-                  <span>0982.502.609</span>
-                </a>
-
                 <button 
                   onClick={scrollToContact}
-                  className="px-4 py-2 bg-brand-gold text-brand-bg text-xs font-mono font-bold uppercase tracking-wider hover:bg-brand-gold-hover transition cursor-pointer"
+                  className="px-6 py-3 bg-brand-gold text-brand-bg text-sm font-mono font-bold uppercase tracking-wider hover:bg-brand-gold-hover transition cursor-pointer"
                 >
                   LIÊN HỆ
                 </button>
