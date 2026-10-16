@@ -9,15 +9,51 @@
   --color-brand-card-inner: #0f0e0c;
   --color-brand-border: #23201b;
   --color-brand-border-light: #332f27;
+
+  /* shadcn/ui tokens */
+  --color-background: #0c0b0a;
+  --color-foreground: #e5e5e5;
+  --color-card: #141311;
+  --color-card-foreground: #f5f5f5;
+  --color-popover: #141311;
+  --color-popover-foreground: #f5f5f5;
+  --color-primary: #c9a961;
+  --color-primary-foreground: #0c0b0a;
+  --color-secondary: #1b1915;
+  --color-secondary-foreground: #e5e5e5;
+  --color-muted: #181613;
+  --color-muted-foreground: #94a3b8;
+  --color-accent: #241f17;
+  --color-accent-foreground: #c9a961;
+  --color-destructive: #7f1d1d;
+  --color-destructive-foreground: #fee2e2;
+  --color-border: #23201b;
+  --color-input: #28241e;
+  --color-ring: #c9a961;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
 }
 
 @layer base {
+  *, ::before, ::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
   body {
     background-color: var(--color-brand-bg);
     color: #e5e5e5;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    width: 100%;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -28,4 +64,39 @@
   code, pre, .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
+
+  /* Tùy chỉnh thanh cuộn công nghiệp DeepM */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0c0b0a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #28241e;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c9a961;
+  }
+}
+
+/* Animations cho Radix Accordion & Dialog */
+@keyframes accordion-down {
+  from { height: 0; opacity: 0; }
+  to { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to { height: 0; opacity: 0; }
+}
+
+.animate-accordion-down {
+  animation: accordion-down 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-accordion-up {
+  animation: accordion-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }

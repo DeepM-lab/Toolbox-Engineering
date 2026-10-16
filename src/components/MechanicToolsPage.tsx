@@ -20,6 +20,15 @@ import {
   ArrowsClockwise,
   X
 } from '@phosphor-icons/react';
+import { 
+  Drawer, 
+  DrawerTrigger, 
+  DrawerContent, 
+  DrawerHeader, 
+  DrawerTitle 
+} from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export const MechanicToolsPage: React.FC = () => {
   // Tab chế độ: Bàn tính hoặc Kiểm thử nghiệm chứng
@@ -38,6 +47,7 @@ export const MechanicToolsPage: React.FC = () => {
 
   // Tool đang được kích hoạt tính toán
   const [selectedToolId, setSelectedToolId] = useLocalStorage<string>('deepm_mech_tool_id', 'DM-001');
+  const [mobileToolDrawerOpen, setMobileToolDrawerOpen] = useState<boolean>(false);
 
   // Giá trị đầu vào động cho từng Tool (cho phép lưu string rỗng khi người dùng đang gõ/xóa)
   const [formInputs, setFormInputs] = useLocalStorage<Record<string, Record<string, number | string>>>('deepm_mech_inputs', () => {
@@ -281,28 +291,28 @@ export const MechanicToolsPage: React.FC = () => {
           </div>
 
           {/* Switch Mode: Bàn tính hoặc Kiểm thử 12 Test Case */}
-          <div className="inline-flex items-center gap-1 bg-brand-card p-1 border border-brand-border self-start sm:self-auto">
+          <div className="flex w-full sm:w-auto items-center gap-1 bg-brand-card p-1 border border-brand-border">
             <button
               onClick={() => setActiveMode('calculator')}
-              className={`flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                 activeMode === 'calculator'
                   ? 'bg-brand-gold text-brand-bg shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-[#1a1815]'
               }`}
             >
               <Cpu size={15} weight="bold" />
-              <span>Bàn Tính 135 Tools</span>
+              <span>Bàn Tính (135)</span>
             </button>
             <button
               onClick={() => setActiveMode('verification')}
-              className={`flex items-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3 sm:px-4 py-2 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
                 activeMode === 'verification'
                   ? 'bg-brand-gold text-brand-bg shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-[#1a1815]'
               }`}
             >
               <Flask size={15} weight="bold" />
-              <span>Nghiệm Chứng 12 Mẫu (Pass 100%)</span>
+              <span>Nghiệm Chứng (12)</span>
             </button>
           </div>
         </div>
@@ -475,8 +485,8 @@ export const MechanicToolsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Các pills danh mục - Tăng chữ 1-2px, padding rộng hơn, tương phản cao */}
-            <div className="flex flex-wrap gap-2 pt-3 border-t border-[#26221a]">
+            {/* Các pills danh mục - Vuốt ngang mượt mà trên điện thoại */}
+            <div className="flex gap-2 pt-3 border-t border-[#26221a] overflow-x-auto pb-2 scrollbar-none">
               {TOOL_CATEGORIES.map((cat) => {
                 const isActive = selectedCategory === cat.id;
                 // Rút gọn tên tab cho thoáng mắt
@@ -485,7 +495,7 @@ export const MechanicToolsPage: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3.5 py-2 text-xs sm:text-[13px] font-mono uppercase tracking-wider transition cursor-pointer border ${
+                    className={`px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-[13px] font-mono uppercase tracking-wider transition cursor-pointer border shrink-0 whitespace-nowrap ${
                       isActive
                         ? 'bg-brand-gold text-brand-bg border-brand-gold font-black shadow-md'
                         : 'bg-[#0e0d0b] text-slate-300 border-[#2b261e] hover:border-brand-gold/60 hover:text-white hover:bg-[#1a1713]'
@@ -498,11 +508,97 @@ export const MechanicToolsPage: React.FC = () => {
             </div>
           </div>
 
+          {/* NÚT MỞ BẢNG CHỌN 135 CÔNG CỤ DÀNH RIÊNG CHO MOBILE */}
+          <div className="lg:hidden bg-brand-card border border-brand-border p-3 sm:p-4 flex items-center justify-between gap-3 shadow-md">
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-mono text-brand-gold uppercase tracking-wider font-bold">
+                CÔNG CỤ ĐANG CHỌN
+              </div>
+              <div className="text-xs sm:text-sm font-bold text-white truncate font-mono mt-0.5">
+                [{currentTool.id}] {currentTool.name}
+              </div>
+            </div>
+
+            <Drawer open={mobileToolDrawerOpen} onOpenChange={setMobileToolDrawerOpen}>
+              <DrawerTrigger asChild>
+                <Button variant="default" size="sm" className="shrink-0 gap-1.5 font-mono">
+                  <MagnifyingGlass size={15} weight="bold" />
+                  <span>Đổi Tool ({filteredTools.length})</span>
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="max-h-[88vh]">
+                <DrawerHeader className="text-left pb-3">
+                  <div className="flex items-center justify-between">
+                    <DrawerTitle className="text-sm sm:text-base text-brand-gold">
+                      CHỌN CÔNG CỤ ({filteredTools.length}/135)
+                    </DrawerTitle>
+                    <Badge variant="outline" className="text-xs">
+                      {selectedCategory === 'all' ? '12 Nhóm' : selectedCategory}
+                    </Badge>
+                  </div>
+                  {/* Ô tìm kiếm trong Drawer */}
+                  <div className="relative mt-2.5">
+                    <MagnifyingGlass size={16} className="absolute left-3 top-2.5 text-brand-gold pointer-events-none" />
+                    <input
+                      type="text" 
+                      placeholder="Gõ tên hoặc mã DM-001..."
+                      value={searchKeyword}
+                      onChange={(e) => setSearchKeyword(e.target.value)}
+                      className="w-full bg-secondary border border-brand-border pl-9 pr-8 py-2 text-xs font-mono text-white focus:outline-none focus:border-brand-gold"
+                    />
+                    {searchKeyword && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchKeyword('')}
+                        className="absolute right-2 top-2 p-1 text-slate-400 hover:text-white"
+                      >
+                        <X size={14} weight="bold" />
+                      </button>
+                    )}
+                  </div>
+                </DrawerHeader>
+
+                <div className="overflow-y-auto divide-y divide-[#1c1913] p-2 flex-1 max-h-[60vh]">
+                  {filteredTools.map((tool) => {
+                    const isSelected = tool.id === selectedToolId;
+                    return (
+                      <button
+                        key={tool.id}
+                        onClick={() => {
+                          setSelectedToolId(tool.id);
+                          setMobileToolDrawerOpen(false);
+                          const calcEl = document.getElementById('deepm-calculator-panel');
+                          if (calcEl) {
+                            calcEl.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                        className={`w-full text-left p-3 transition cursor-pointer flex flex-col gap-1 border ${
+                          isSelected
+                            ? 'bg-[#1f1b13] border-brand-gold text-white'
+                            : 'bg-transparent border-transparent hover:bg-[#161512] text-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className={`font-bold ${isSelected ? 'text-brand-gold' : 'text-slate-400'}`}>
+                            [{tool.id}]
+                          </span>
+                          <span className="text-[10px] text-slate-400 uppercase">{tool.classification || tool.category}</span>
+                        </div>
+                        <div className="font-bold text-sm leading-snug">{tool.name}</div>
+                        <div className="text-xs text-slate-400 font-sans line-clamp-1">{tool.desc}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
+
           {/* 4. WORKSPACE CHÍNH: MENU 135 TOOL BÊN TRÁI + BÀN TÍNH CÔNG THỨC BÊN PHẢI */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* CỘT TRÁI: DANH SÁCH TOOL DẠNG COMPACT LIST */}
-            <div className="lg:col-span-5 bg-[#12110f] border border-brand-border flex flex-col h-187.5">
+            {/* CỘT TRÁI: DANH SÁCH TOOL DẠNG COMPACT LIST (Ẩn trên mobile vì đã có Drawer tiện lợi, hiện trên desktop) */}
+            <div className="hidden lg:flex lg:col-span-5 bg-[#12110f] border border-brand-border flex-col h-187.5">
               <div className="p-3.5 border-b border-brand-border bg-[#161410] flex justify-between items-center text-sm font-mono">
                 <span className="font-bold text-slate-200 uppercase tracking-wider">
                   DANH SÁCH TOOL ({filteredTools.length}/135)
@@ -550,7 +646,7 @@ export const MechanicToolsPage: React.FC = () => {
             </div>
 
             {/* CỘT PHẢI: BÀN TÍNH TOÁN KỸ THUẬT */}
-            <div className="lg:col-span-7 bg-[#12110f] border border-brand-border p-6 space-y-6">
+            <div id="deepm-calculator-panel" className="lg:col-span-7 bg-[#12110f] border border-brand-border p-4 sm:p-6 space-y-5 sm:space-y-6 w-full">
               
               {/* Header của Tool đang chọn */}
               <div className="border-b border-brand-border pb-4 space-y-2.5">

@@ -30,22 +30,22 @@ export const TireVisualizer: React.FC<TireVisualizerProps> = ({
   const compareTireRadiusPx = compareWith ? (compareWith.totalDiameterMm / 2) * scale : null;
 
   return (
-    <div className="bg-brand-card border border-brand-border p-6 flex flex-col items-center">
+    <div className="bg-brand-card border border-brand-border p-4 sm:p-6 flex flex-col items-center w-full max-w-full overflow-hidden">
       {/* Header kỹ thuật phong cách deepm.vn */}
-      <div className="w-full flex items-center justify-between border-b border-brand-border pb-3 mb-6">
+      <div className="w-full flex items-center justify-between border-b border-brand-border pb-3 mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-brand-gold" />
-          <span className="text-[11px] font-mono tracking-widest uppercase text-slate-300 font-bold">
+          <div className="w-2 h-2 bg-brand-gold shrink-0" />
+          <span className="text-[10px] sm:text-[11px] font-mono tracking-widest uppercase text-slate-300 font-bold truncate">
             {label}
           </span>
         </div>
-        <span className="font-mono text-xs text-brand-gold font-bold bg-brand-bg px-3 py-1 border border-[#3d3422]">
+        <span className="font-mono text-xs text-brand-gold font-bold bg-brand-bg px-2.5 py-1 border border-[#3d3422] shrink-0">
           {width}/{aspectRatio}R{rimDiameter}
         </span>
       </div>
 
       {/* SVG Canvas mô phỏng - Phóng to thêm diện tích hiển thị */}
-      <div className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center my-3">
+      <div className="relative w-65 h-65 sm:w-80 sm:h-80 max-w-full flex items-center justify-center my-2 sm:my-3">
         {/* Lưới tọa độ background */}
         <div className="absolute inset-0 bg-[radial-gradient(#2c271f_1px,transparent_1px)] bg-size-[16px_16px] opacity-70 pointer-events-none" />
 
@@ -138,16 +138,16 @@ export const TireVisualizer: React.FC<TireVisualizerProps> = ({
       </div>
 
       {/* Thông số đo lường bên dưới - Chữ to, phân cấp rõ ràng */}
-      <div className="grid grid-cols-2 gap-3.5 w-full mt-4 font-mono border-t border-brand-border pt-4">
-        <div className="bg-brand-bg p-4 border border-brand-border hover:border-[#383329] transition">
-          <div className="text-slate-400 text-xs uppercase font-bold tracking-wider">ĐỘ CAO HÔNG LỐP</div>
-          <div className="text-white text-lg sm:text-xl font-bold mt-1.5">{sidewallHeightMm} mm</div>
-          <div className="text-xs text-slate-400 mt-1">{aspectRatio}% bề rộng lốp</div>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3.5 w-full mt-4 font-mono border-t border-brand-border pt-3 sm:pt-4">
+        <div className="bg-brand-bg p-3 sm:p-4 border border-brand-border hover:border-[#383329] transition">
+          <div className="text-slate-400 text-[10px] sm:text-xs uppercase font-bold tracking-wider truncate">ĐỘ CAO HÔNG LỐP</div>
+          <div className="text-white text-base sm:text-xl font-bold mt-1">{sidewallHeightMm} mm</div>
+          <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5 truncate">{aspectRatio}% bề rộng lốp</div>
         </div>
-        <div className="bg-brand-bg p-4 border border-brand-border hover:border-[#383329] transition">
-          <div className="text-slate-400 text-xs uppercase font-bold tracking-wider">BỀ RỘNG TIẾP XÚC</div>
-          <div className="text-white text-lg sm:text-xl font-bold mt-1.5">{width} mm</div>
-          <div className="text-xs text-slate-400 mt-1">Tiết diện mặt gai</div>
+        <div className="bg-brand-bg p-3 sm:p-4 border border-brand-border hover:border-[#383329] transition">
+          <div className="text-slate-400 text-[10px] sm:text-xs uppercase font-bold tracking-wider truncate">BỀ RỘNG TIẾP XÚC</div>
+          <div className="text-white text-base sm:text-xl font-bold mt-1">{width} mm</div>
+          <div className="text-[10px] sm:text-xs text-slate-400 mt-0.5 truncate">Tiết diện mặt gai</div>
         </div>
       </div>
     </div>

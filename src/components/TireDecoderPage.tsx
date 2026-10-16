@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TireVisualizer } from './TireVisualizer';
 import { calculateTire, compareTires, parseTireString, type TireParams } from '../utils/tireCalculations';
 import { parseFullTireString, type FullTireSpec } from '../utils/tireParser';
@@ -29,6 +29,13 @@ import {
   CaretDown,
   Wrench
 } from '@phosphor-icons/react';
+import { 
+  Accordion, 
+  AccordionItem, 
+  AccordionTrigger, 
+  AccordionContent 
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
 import { generateExpertAdvice } from '../utils/tireAdvisor';
 
 const POPULAR_TIRES = [
@@ -81,13 +88,6 @@ export const TireDecoderPage: React.FC = () => {
     rimDiameter: 17,
   });
 
-  // Tự động phân tích lại khi tải lại trang
-  useEffect(() => {
-    if (inputText) {
-      handleParseInput(inputText);
-    }
-  }, []);
-
   const currentCalc = calculateTire(currentTire);
   const newCalc = calculateTire(newTire);
   const comparison = compareTires(currentCalc, newCalc);
@@ -122,6 +122,8 @@ export const TireDecoderPage: React.FC = () => {
     }
   };
 
+
+
   const handleSelectQuickTire = (spec: string) => {
     setInputText(spec);
     handleParseInput(spec);
@@ -142,42 +144,42 @@ export const TireDecoderPage: React.FC = () => {
           TẢI TRỌNG (LOAD INDEX) • TỐC ĐỘ (SPEED RATING) • TIÊU CHUẨN UTQG • NĂM SẢN XUẤT DOT • DẤU HIỆU BÁO MÒN
         </div>
 
-        {/* Chuyển đổi Tabs 3 Chế Độ */}
-        <div className="flex flex-wrap gap-2 mt-8">
+        {/* Chuyển đổi Tabs 3 Chế Độ - Vuốt ngang mượt mà trên mobile */}
+        <div className="flex items-center gap-2 mt-6 sm:mt-8 overflow-x-auto pb-2 scrollbar-none">
           <button
             onClick={() => setMode('decode')}
-            className={`flex items-center gap-2 px-5 py-3 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer border ${
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer border shrink-0 ${
               mode === 'decode'
-                ? 'bg-brand-gold text-brand-bg border-brand-gold'
+                ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
                 : 'bg-brand-card text-slate-400 border-brand-border hover:text-white hover:border-[#383329]'
             }`}
           >
             <Info size={16} weight="bold" />
-            1. Giải Mã Chuỗi Ký Hiệu Lốp
+            <span>1. Giải Mã Chuỗi Ký Hiệu</span>
           </button>
 
           <button
             onClick={() => setMode('compare')}
-            className={`flex items-center gap-2 px-5 py-3 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer border ${
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer border shrink-0 ${
               mode === 'compare'
-                ? 'bg-brand-gold text-brand-bg border-brand-gold'
+                ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
                 : 'bg-brand-card text-slate-400 border-brand-border hover:text-white hover:border-[#383329]'
             }`}
           >
             <Scales size={16} weight="bold" />
-            2. So Sánh Lốp Zin vs Lốp Độ
+            <span>2. So Sánh Lốp Zin vs Độ</span>
           </button>
 
           <button
             onClick={() => setMode('knowledge')}
-            className={`flex items-center gap-2 px-5 py-3 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer border ${
+            className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-mono uppercase tracking-wider font-bold transition cursor-pointer border shrink-0 ${
               mode === 'knowledge'
-                ? 'bg-brand-gold text-brand-bg border-brand-gold'
+                ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
                 : 'bg-brand-card text-slate-400 border-brand-border hover:text-white hover:border-[#383329]'
             }`}
           >
             <Article size={16} weight="bold" />
-            3. Cẩm Nang Kỹ Thuật & Nhận Biết Mòn Lốp
+            <span>3. Cẩm Nang Kỹ Thuật</span>
           </button>
         </div>
       </div>
@@ -198,7 +200,7 @@ export const TireDecoderPage: React.FC = () => {
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleParseInput(inputText)}
                 placeholder="Ví dụ: P205/55R16 91V XL"
-                className="flex-1 bg-brand-bg border border-[#28241e] px-4 py-3 text-lg font-mono font-bold text-brand-gold focus:border-brand-gold focus:outline-none tracking-wider uppercase"
+                className="flex-1 bg-brand-bg border border-input px-4 py-3 text-lg font-mono font-bold text-brand-gold focus:border-brand-gold focus:outline-none tracking-wider uppercase"
               />
               <button
                 onClick={() => handleParseInput(inputText)}
@@ -714,7 +716,7 @@ export const TireDecoderPage: React.FC = () => {
                     type="number"
                     value={currentTire.width}
                     onChange={(e) => setCurrentTire({ ...currentTire, width: Number(e.target.value) })}
-                    className="w-full bg-brand-bg border border-[#28241e] focus:border-brand-gold focus:outline-none p-2.5 text-center text-white font-bold text-base sm:text-lg"
+                    className="w-full bg-brand-bg border border-input focus:border-brand-gold focus:outline-none p-2.5 text-center text-white font-bold text-base sm:text-lg"
                   />
                 </div>
                 <div>
@@ -723,7 +725,7 @@ export const TireDecoderPage: React.FC = () => {
                     type="number"
                     value={currentTire.aspectRatio}
                     onChange={(e) => setCurrentTire({ ...currentTire, aspectRatio: Number(e.target.value) })}
-                    className="w-full bg-brand-bg border border-[#28241e] focus:border-brand-gold focus:outline-none p-2.5 text-center text-white font-bold text-base sm:text-lg"
+                    className="w-full bg-brand-bg border border-input focus:border-brand-gold focus:outline-none p-2.5 text-center text-white font-bold text-base sm:text-lg"
                   />
                 </div>
                 <div>
@@ -732,7 +734,7 @@ export const TireDecoderPage: React.FC = () => {
                     type="number"
                     value={currentTire.rimDiameter}
                     onChange={(e) => setCurrentTire({ ...currentTire, rimDiameter: Number(e.target.value) })}
-                    className="w-full bg-brand-bg border border-[#28241e] focus:border-brand-gold focus:outline-none p-2.5 text-center text-white font-bold text-base sm:text-lg"
+                    className="w-full bg-brand-bg border border-input focus:border-brand-gold focus:outline-none p-2.5 text-center text-white font-bold text-base sm:text-lg"
                   />
                 </div>
               </div>
@@ -926,137 +928,185 @@ export const TireDecoderPage: React.FC = () => {
         </div>
       )}
 
-      {/* CHẾ ĐỘ 3: CẨM NANG TOÀN DIỆN TỪ FILE OBSIDIAN */}
+      {/* CHẾ ĐỘ 3: CẨM NANG TOÀN DIỆN DẠNG ACCORDION THÂN THIỆN MOBILE */}
       {mode === 'knowledge' && (
-        <div className="space-y-8">
-          {/* Mục A: Dấu hiệu nhận biết lốp đã đạt độ mòn tối đa */}
-          <div className="bg-brand-card p-6 sm:p-7 border border-brand-border space-y-5">
-            <div className="border-b border-brand-border pb-3.5 flex items-center justify-between">
-              <h2 className="text-sm sm:text-base font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                <FirstAid size={20} className="text-brand-gold" weight="bold" />
-                Dấu Hiệu Nhận Biết Lốp Cần Thay Thế Ngay Lập Tức
+        <div className="space-y-4">
+          <div className="bg-brand-card p-4 sm:p-5 border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold font-mono text-white flex items-center gap-2">
+                <Article size={20} className="text-brand-gold" weight="bold" />
+                CẨM NANG KỸ THUẬT & KIẾN THỨC LỐP CHUYÊN SÂU
               </h2>
-              <span className="text-xs font-mono text-slate-400 font-bold hidden sm:inline">TIRE WEAR & DAMAGE GUIDE</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 font-mono">
-              {TIRE_WEAR_GUIDE.map((wear, idx) => (
-                <div key={idx} className="bg-brand-bg p-5 border border-brand-border hover:border-[#383329] transition flex flex-col justify-between">
-                  <div className="space-y-2.5">
-                    <span className="text-brand-gold font-bold block text-sm sm:text-[15px] border-b border-brand-border pb-1.5">{wear.type}</span>
-                    <p className="text-slate-200 font-sans text-xs sm:text-sm leading-relaxed">
-                      <b className="text-white">Hiện tượng:</b> {wear.symptom}
-                    </p>
-                    {wear.cause && (
-                      <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed">
-                        <b className="text-slate-400">Nguyên nhân:</b> {wear.cause}
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-[#1f1b15] text-xs sm:text-sm font-sans text-amber-300 leading-relaxed">
-                    <b className="text-brand-gold">Khuyến nghị:</b> {wear.action}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Mục B: Ký hiệu lốp nguyên gốc theo hãng xe (OE Markings) */}
-          <div className="bg-brand-card p-6 sm:p-7 border border-brand-border space-y-5">
-            <div className="border-b border-brand-border pb-3.5">
-              <h2 className="text-sm sm:text-base font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                <ShieldCheck size={20} className="text-brand-gold" weight="bold" />
-                Ký Hiệu Lốp Nguyên Gốc Nhà Sản Xuất (Original Equipment - OE Markings)
-              </h2>
-              <p className="text-slate-300 font-sans text-xs sm:text-sm mt-1.5 leading-relaxed">
-                Lốp lắp theo xe xuất xưởng thường có các mã dập nổi đặc thù được tinh chỉnh riêng cho từng hãng xe danh tiếng.
+              <p className="text-xs sm:text-sm text-slate-400 font-sans mt-0.5">
+                Bấm vào từng mục bên dưới để xem chi tiết hoặc thu gọn khi tra cứu trên điện thoại.
               </p>
             </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 font-mono">
-              {Object.entries(OE_MARKINGS).map(([code, item]) => (
-                <div key={code} className="bg-brand-bg p-4 border border-brand-border hover:border-brand-gold/40 transition text-center flex flex-col justify-between">
-                  <div className="text-xl sm:text-2xl font-bold text-brand-gold">{code}</div>
-                  <div className="text-white font-bold text-xs sm:text-sm mt-1">{item.brand}</div>
-                  <div className="text-xs text-slate-400 font-sans mt-1.5 leading-tight">{item.note}</div>
-                </div>
-              ))}
-            </div>
+            <Badge variant="gold" className="self-start sm:self-auto shrink-0">
+              DEEPM HANDBOOK
+            </Badge>
           </div>
 
-          {/* Mục C: Tiêu chuẩn chất lượng UTQG của Mỹ */}
-          <div className="bg-brand-card p-6 sm:p-7 border border-brand-border space-y-5">
-            <div className="border-b border-brand-border pb-3.5">
-              <h2 className="text-sm sm:text-base font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                <Gauge size={20} className="text-brand-gold" weight="bold" />
-                Hệ Thống Tiêu Chuẩn Chất Lượng UTQG (Uniform Tire Quality Grading - Mỹ)
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 font-mono">
-              <div className="bg-brand-bg p-5 border border-brand-border hover:border-[#383329] transition flex flex-col justify-between">
-                <div>
-                  <span className="text-brand-gold font-bold text-sm sm:text-base block mb-2">1. TREADWEAR (ĐỘ CHỐNG MÒN)</span>
-                  <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed">
-                    {UTQG_DATA.treadwear.desc}
-                  </p>
+          <Accordion type="multiple" defaultValue={['wear', 'oe']} className="w-full space-y-3">
+            {/* Mục A: Dấu hiệu nhận biết lốp đã đạt độ mòn tối đa */}
+            <AccordionItem value="wear">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-2.5 sm:gap-3 text-left">
+                  <FirstAid size={20} className="text-brand-gold shrink-0" weight="bold" />
+                  <div>
+                    <div className="text-sm sm:text-base font-mono uppercase font-bold text-white">
+                      1. Dấu Hiệu Nhận Biết Lốp Cần Thay Thế Ngay
+                    </div>
+                    <div className="text-xs text-slate-400 font-sans font-normal mt-0.5">
+                      6 dạng mòn bất thường, nguyên nhân và khuyến nghị xử lý
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-4 bg-brand-card p-3 border border-brand-border text-xs sm:text-sm text-slate-200 font-sans leading-relaxed">
-                  {UTQG_DATA.treadwear.scale}
-                </div>
-              </div>
-
-              <div className="bg-brand-bg p-5 border border-brand-border hover:border-[#383329] transition">
-                <span className="text-brand-gold font-bold text-sm sm:text-base block mb-2">2. TRACTION (BÁM ĐƯỜNG ƯỚT)</span>
-                <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed mb-3">
-                  {UTQG_DATA.traction.desc}
-                </p>
-                <div className="space-y-1.5 pt-2 border-t border-[#1f1b15]">
-                  {UTQG_DATA.traction.levels.map((lvl) => (
-                    <div key={lvl.grade} className="flex gap-2 text-xs sm:text-sm">
-                      <span className="font-bold text-brand-gold font-mono min-w-7">{lvl.grade}:</span>
-                      <span className="text-slate-300 font-sans">{lvl.desc}</span>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 font-mono pt-2">
+                  {TIRE_WEAR_GUIDE.map((wear, idx) => (
+                    <div key={idx} className="bg-brand-bg p-4 sm:p-5 border border-brand-border hover:border-[#383329] transition flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <span className="text-brand-gold font-bold block text-sm sm:text-[15px] border-b border-brand-border pb-1.5">{wear.type}</span>
+                        <p className="text-slate-200 font-sans text-xs sm:text-sm leading-relaxed">
+                          <b className="text-white">Hiện tượng:</b> {wear.symptom}
+                        </p>
+                        {wear.cause && (
+                          <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed">
+                            <b className="text-slate-400">Nguyên nhân:</b> {wear.cause}
+                          </p>
+                        )}
+                      </div>
+                      <div className="mt-3 pt-2.5 border-t border-[#1f1b15] text-xs sm:text-sm font-sans text-amber-300 leading-relaxed">
+                        <b className="text-brand-gold">Khuyến nghị:</b> {wear.action}
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
+              </AccordionContent>
+            </AccordionItem>
 
-              <div className="bg-brand-bg p-5 border border-brand-border hover:border-[#383329] transition">
-                <span className="text-brand-gold font-bold text-sm sm:text-base block mb-2">3. TEMPERATURE (CHỊU NHIỆT CAO)</span>
-                <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed mb-3">
-                  {UTQG_DATA.temperature.desc}
+            {/* Mục B: Ký hiệu lốp nguyên gốc theo hãng xe (OE Markings) */}
+            <AccordionItem value="oe">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-2.5 sm:gap-3 text-left">
+                  <ShieldCheck size={20} className="text-brand-gold shrink-0" weight="bold" />
+                  <div>
+                    <div className="text-sm sm:text-base font-mono uppercase font-bold text-white">
+                      2. Ký Hiệu Lốp Nguyên Gốc Hãng Xe (OE Markings)
+                    </div>
+                    <div className="text-xs text-slate-400 font-sans font-normal mt-0.5">
+                      Mã dập nổi riêng cho Porsche, Mercedes-Benz, BMW, Audi, Ferrari...
+                    </div>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <p className="text-slate-300 font-sans text-xs sm:text-sm mb-4 leading-relaxed">
+                  Lốp lắp theo xe xuất xưởng thường có các mã dập nổi đặc thù được tinh chỉnh riêng cho từng hãng xe danh tiếng.
                 </p>
-                <div className="space-y-1.5 pt-2 border-t border-[#1f1b15]">
-                  {UTQG_DATA.temperature.levels.map((lvl) => (
-                    <div key={lvl.grade} className="flex gap-2 text-xs sm:text-sm">
-                      <span className="font-bold text-brand-gold font-mono min-w-6">{lvl.grade}:</span>
-                      <span className="text-slate-300 font-sans">{lvl.desc}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 sm:gap-3 font-mono">
+                  {Object.entries(OE_MARKINGS).map(([code, item]) => (
+                    <div key={code} className="bg-brand-bg p-3 sm:p-4 border border-brand-border hover:border-brand-gold/40 transition text-center flex flex-col justify-between">
+                      <div className="text-lg sm:text-2xl font-bold text-brand-gold">{code}</div>
+                      <div className="text-white font-bold text-xs sm:text-sm mt-1">{item.brand}</div>
+                      <div className="text-[11px] sm:text-xs text-slate-400 font-sans mt-1 leading-tight">{item.note}</div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-          </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* Mục D: Ký hiệu địa hình & công nghệ */}
-          <div className="bg-brand-card p-6 sm:p-7 border border-brand-border space-y-5">
-            <div className="border-b border-brand-border pb-3.5">
-              <h2 className="text-sm sm:text-base font-mono uppercase font-bold text-white tracking-wider flex items-center gap-2">
-                <Truck size={20} className="text-brand-gold" weight="bold" />
-                Ký Hiệu Công Nghệ Vận Hành & Địa Hình Mở Rộng
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 font-mono">
-              {Object.entries(TERRAIN_TECH_SPECS).map(([code, item]) => (
-                <div key={code} className="bg-brand-bg p-5 border border-brand-border hover:border-[#383329] transition">
-                  <div className="text-lg sm:text-xl font-bold text-brand-gold">{code}</div>
-                  <div className="text-white font-bold text-xs sm:text-sm mt-1">{item.name}</div>
-                  <p className="text-slate-300 font-sans text-xs sm:text-sm mt-2 leading-relaxed">{item.desc}</p>
+            {/* Mục C: Tiêu chuẩn chất lượng UTQG của Mỹ */}
+            <AccordionItem value="utqg">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-2.5 sm:gap-3 text-left">
+                  <Gauge size={20} className="text-brand-gold shrink-0" weight="bold" />
+                  <div>
+                    <div className="text-sm sm:text-base font-mono uppercase font-bold text-white">
+                      3. Tiêu Chuẩn Chất Lượng UTQG Mỹ
+                    </div>
+                    <div className="text-xs text-slate-400 font-sans font-normal mt-0.5">
+                      Treadwear (chống mòn), Traction (bám ướt) và Temperature (chịu nhiệt)
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono pt-2">
+                  <div className="bg-brand-bg p-4 sm:p-5 border border-brand-border hover:border-[#383329] transition flex flex-col justify-between">
+                    <div>
+                      <span className="text-brand-gold font-bold text-sm sm:text-base block mb-2">1. TREADWEAR (ĐỘ CHỐNG MÒN)</span>
+                      <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed">
+                        {UTQG_DATA.treadwear.desc}
+                      </p>
+                    </div>
+                    <div className="mt-3 bg-brand-card p-3 border border-brand-border text-xs sm:text-sm text-slate-200 font-sans leading-relaxed">
+                      {UTQG_DATA.treadwear.scale}
+                    </div>
+                  </div>
+
+                  <div className="bg-brand-bg p-4 sm:p-5 border border-brand-border hover:border-[#383329] transition">
+                    <span className="text-brand-gold font-bold text-sm sm:text-base block mb-2">2. TRACTION (BÁM ĐƯỜNG ƯỚT)</span>
+                    <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed mb-3">
+                      {UTQG_DATA.traction.desc}
+                    </p>
+                    <div className="space-y-1.5 pt-2 border-t border-[#1f1b15]">
+                      {UTQG_DATA.traction.levels.map((lvl) => (
+                        <div key={lvl.grade} className="flex gap-2 text-xs sm:text-sm">
+                          <span className="font-bold text-brand-gold font-mono min-w-7">{lvl.grade}:</span>
+                          <span className="text-slate-300 font-sans">{lvl.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-brand-bg p-4 sm:p-5 border border-brand-border hover:border-[#383329] transition">
+                    <span className="text-brand-gold font-bold text-sm sm:text-base block mb-2">3. TEMPERATURE (CHỊU NHIỆT CAO)</span>
+                    <p className="text-slate-300 font-sans text-xs sm:text-sm leading-relaxed mb-3">
+                      {UTQG_DATA.temperature.desc}
+                    </p>
+                    <div className="space-y-1.5 pt-2 border-t border-[#1f1b15]">
+                      {UTQG_DATA.temperature.levels.map((lvl) => (
+                        <div key={lvl.grade} className="flex gap-2 text-xs sm:text-sm">
+                          <span className="font-bold text-brand-gold font-mono min-w-6">{lvl.grade}:</span>
+                          <span className="text-slate-300 font-sans">{lvl.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Mục D: Ký hiệu địa hình & công nghệ */}
+            <AccordionItem value="terrain">
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-2.5 sm:gap-3 text-left">
+                  <Truck size={20} className="text-brand-gold shrink-0" weight="bold" />
+                  <div>
+                    <div className="text-sm sm:text-base font-mono uppercase font-bold text-white">
+                      4. Ký Hiệu Công Nghệ Vận Hành & Địa Hình Mở Rộng
+                    </div>
+                    <div className="text-xs text-slate-400 font-sans font-normal mt-0.5">
+                      A/T, M/T, H/T, XL, Extra Load, Run-Flat, 3PMSF bông tuyết...
+                    </div>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 font-mono pt-2">
+                  {Object.entries(TERRAIN_TECH_SPECS).map(([code, item]) => (
+                    <div key={code} className="bg-brand-bg p-4 sm:p-5 border border-brand-border hover:border-[#383329] transition">
+                      <div className="text-lg sm:text-xl font-bold text-brand-gold">{code}</div>
+                      <div className="text-white font-bold text-xs sm:text-sm mt-1">{item.name}</div>
+                      <p className="text-slate-300 font-sans text-xs sm:text-sm mt-2 leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
     </div>
