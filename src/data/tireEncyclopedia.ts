@@ -1,7 +1,10 @@
 // Dữ liệu tra cứu toàn diện theo tài liệu "Thông số lốp.md" của DeepM
 
-// 9.1. Chỉ số tải trọng chuẩn quốc tế (Load Index - Li) từ 60 đến 130
+// 9.1. Chỉ số tải trọng chuẩn quốc tế (Load Index - Li) từ 30 đến 160 (Bao gồm xe máy, xe du lịch, xe tải nhẹ đến container)
 export const LOAD_INDEX_TABLE: Record<number, number> = {
+  30: 106, 31: 109, 32: 112, 33: 115, 34: 118, 35: 121, 36: 125, 37: 128, 38: 132, 39: 136,
+  40: 140, 41: 145, 42: 150, 43: 155, 44: 160, 45: 165, 46: 170, 47: 175, 48: 180, 49: 185,
+  50: 190, 51: 195, 52: 200, 53: 206, 54: 212, 55: 218, 56: 224, 57: 230, 58: 236, 59: 243,
   60: 250, 61: 257, 62: 265, 63: 272, 64: 280,
   65: 290, 66: 300, 67: 307, 68: 315, 69: 325,
   70: 335, 71: 345, 72: 355, 73: 365, 74: 375,
@@ -16,25 +19,34 @@ export const LOAD_INDEX_TABLE: Record<number, number> = {
   115: 1215, 116: 1250, 117: 1285, 118: 1320, 119: 1360,
   120: 1400, 121: 1450, 122: 1500, 123: 1550, 124: 1600,
   125: 1650, 126: 1700, 127: 1750, 128: 1800, 129: 1850,
-  130: 1900
+  130: 1900, 131: 1950, 132: 2000, 133: 2060, 134: 2120,
+  135: 2180, 136: 2240, 137: 2300, 138: 2360, 139: 2430,
+  140: 2500, 141: 2575, 142: 2650, 143: 2725, 144: 2800,
+  145: 2900, 146: 3000, 147: 3075, 148: 3150, 149: 3250,
+  150: 3350, 151: 3450, 152: 3550, 153: 3650, 154: 3750,
+  155: 3875, 156: 4000, 157: 4125, 158: 4250, 159: 4375, 160: 4500
 };
 
 // 9.2. Chỉ số giới hạn tốc độ chuẩn quốc tế (Speed Rating)
 export const SPEED_RATING_TABLE: Record<string, { speedKmH: number; desc: string }> = {
-  L: { speedKmH: 120, desc: 'Xe tải nhẹ chuyên dụng, xe công trình' },
-  M: { speedKmH: 130, desc: 'Lốp dự phòng tạm thời (khuyến nghị chạy <= 80 km/h)' },
-  N: { speedKmH: 140, desc: 'Lốp dự phòng, xe tải nhỏ' },
-  P: { speedKmH: 150, desc: 'Xe đô thị cỡ nhỏ' },
-  Q: { speedKmH: 160, desc: 'Xe địa hình 4x4, lốp mùa đông' },
-  R: { speedKmH: 170, desc: 'Xe bán tải, xe địa hình SUV' },
-  S: { speedKmH: 180, desc: 'Xe sedan / hatchback phổ thông' },
-  T: { speedKmH: 190, desc: 'Sedan, MPV, Crossover gia đình' },
-  U: { speedKmH: 200, desc: 'Xe sedan phân khúc tầm trung' },
-  H: { speedKmH: 210, desc: 'Sedan / SUV hiệu năng vừa' },
-  V: { speedKmH: 240, desc: 'Sedan / SUV công suất cao' },
+  F: { speedKmH: 80, desc: 'Xe nâng, xe chuyên dụng công trường (tối đa 80 km/h)' },
+  G: { speedKmH: 90, desc: 'Xe tải nặng đặc thù, đầu kéo tải trọng lớn (tối đa 90 km/h)' },
+  J: { speedKmH: 100, desc: 'Xe tải nặng, xe bồn, container (tối đa 100 km/h)' },
+  K: { speedKmH: 110, desc: 'Xe tải đường dài, xe khách liên tỉnh (tối đa 110 km/h)' },
+  L: { speedKmH: 120, desc: 'Xe tải nhẹ chuyên dụng, xe công trình (tối đa 120 km/h)' },
+  M: { speedKmH: 130, desc: 'Lốp dự phòng tạm thời, xe tải nhẹ (tối đa 130 km/h)' },
+  N: { speedKmH: 140, desc: 'Lốp dự phòng, xe tải nhỏ, xe máy phổ thông (tối đa 140 km/h)' },
+  P: { speedKmH: 150, desc: 'Xe đô thị cỡ nhỏ, xe tay ga tốc độ cao (tối đa 150 km/h)' },
+  Q: { speedKmH: 160, desc: 'Xe địa hình 4x4, lốp mùa đông (tối đa 160 km/h)' },
+  R: { speedKmH: 170, desc: 'Xe bán tải, xe địa hình SUV (tối đa 170 km/h)' },
+  S: { speedKmH: 180, desc: 'Xe sedan / hatchback phổ thông (tối đa 180 km/h)' },
+  T: { speedKmH: 190, desc: 'Sedan, MPV, Crossover gia đình (tối đa 190 km/h)' },
+  U: { speedKmH: 200, desc: 'Xe sedan phân khúc tầm trung (tối đa 200 km/h)' },
+  H: { speedKmH: 210, desc: 'Sedan / SUV hiệu năng vừa (tối đa 210 km/h)' },
+  V: { speedKmH: 240, desc: 'Sedan / SUV công suất cao (tối đa 240 km/h)' },
   Z: { speedKmH: 240, desc: 'Lốp hiệu năng cao trên 240 km/h (Chuẩn ZR)' },
-  W: { speedKmH: 270, desc: 'Xe thể thao hiệu năng cao' },
-  Y: { speedKmH: 300, desc: 'Siêu xe thể thao cao cấp' },
+  W: { speedKmH: 270, desc: 'Xe thể thao, mô tô phân khối lớn (tối đa 270 km/h)' },
+  Y: { speedKmH: 300, desc: 'Siêu xe thể thao cao cấp (tối đa 300 km/h)' },
   '(Y)': { speedKmH: 320, desc: 'Siêu xe đặc biệt vận tốc trên 300 km/h' }
 };
 
@@ -45,7 +57,9 @@ export const VEHICLE_TYPE_MAP: Record<string, string> = {
   ST: 'Special Trailer (Xe đầu kéo, rơ-moóc chuyên dụng)',
   T: 'Temporary (Lốp thay thế dự phòng khẩn cấp)',
   C: 'Commercial (Xe thương mại chở khách, xe tải van)',
-  HL: 'High Load Capacity (Chuẩn lốp chịu tải cực cao dành riêng cho xe điện & SUV pin lớn)'
+  HL: 'High Load Capacity (Chuẩn lốp chịu tải cực cao dành riêng cho xe điện & SUV pin lớn)',
+  MC: 'Motorcycle (Lốp xe máy, mô tô, xe tay ga)',
+  TRUCK: 'Commercial Heavy Truck (Xe tải nặng, đầu kéo, xe buýt)'
 };
 
 // Phân hạng tải trọng và số lớp bố (Load Range / Ply Rating)

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { TireDecoderPage } from './components/TireDecoderPage';
 import { MechanicToolsPage } from './components/MechanicToolsPage';
 import { ContactSection } from './components/ContactSection';
@@ -10,7 +10,11 @@ import {
   List, 
   MapPin, 
   ChatCircleDots,
-  ArrowUp
+  ArrowUp,
+  House,
+  BookOpen,
+  CaretDown,
+  ArrowSquareOut
 } from '@phosphor-icons/react';
 import { useLocalStorage } from './utils/useLocalStorage';
 import { 
@@ -24,15 +28,56 @@ import {
 export default function App() {
   const [activeTab, setActiveTab] = useLocalStorage<'tire' | 'mechanic'>('deepm_active_tab', 'tire');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [wikiDropdownOpen, setWikiDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Xử lý mở/đóng dropdown có khoảng trễ (Grace Period) để không bao giờ bị mất menu khi rê chuột chậm
+  const handleMouseEnterWiki = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setWikiDropdownOpen(true);
+  };
+
+  const handleMouseLeaveWiki = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
+    // Độ trễ 80ms để chuột di chuyển thoải mái qua khoảng trống
+    closeTimeoutRef.current = setTimeout(() => {
+      setWikiDropdownOpen(false);
+    }, 80);
+  };
+
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+        setWikiDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
 
   const handleTabChange = (tab: 'tire' | 'mechanic') => {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     setActiveTab(tab);
     setMobileMenuOpen(false);
+    setWikiDropdownOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const scrollToContact = () => {
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     setMobileMenuOpen(false);
+    setWikiDropdownOpen(false);
     const el = document.getElementById('contact');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -46,11 +91,11 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
           <div className="h-16 sm:h-20 flex items-center justify-between gap-2">
             
-            {/* Logo DeepM chuẩn */}
-            <div 
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            {/* Logo DeepM */}
+            <a 
+              href="https://deepm.vn/"
               className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group shrink-0"
-              title="Cuộn lên đầu trang"
+              title="Về Trang chủ DeepM.vn"
             >
               <div className="border border-white/80 px-2 py-1 sm:px-2.5 text-center bg-black leading-none group-hover:border-brand-gold transition">
                 <div className="text-[13px] sm:text-[14px] font-black tracking-tighter text-white">DM</div>
@@ -62,34 +107,105 @@ export default function App() {
                 </div>
                 <div className="text-[9px] sm:text-[10px] text-slate-400 font-mono mt-0.5 hidden xs:block">ENGINEERING TOOLBOX</div>
               </div>
-            </div>
+            </a>
 
-            {/* Menu & Switch Tabs trên Desktop */}
+            {/* Menu & Submenu Wiki trên Desktop */}
             <div className="hidden md:flex items-center gap-3 lg:gap-4">
-              <nav className="flex items-center gap-1.5 bg-brand-card p-1.5 border border-brand-border">
-                <button
-                  onClick={() => handleTabChange('tire')}
-                  className={`flex items-center gap-2 px-4 lg:px-5 py-2 text-xs lg:text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
-                    activeTab === 'tire'
-                      ? 'bg-brand-gold text-brand-bg shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-[#1a1815]'
-                  }`}
+              <nav className="flex items-center gap-2 bg-brand-card p-1.5 border border-brand-border">
+                {/* 1. Menu HOME dẫn về https://deepm.vn/ - Đồng bộ border và hover viền vàng giống Wiki */}
+                <a
+                  href="https://deepm.vn/"
+                  className="flex items-center gap-2 px-4 lg:px-4.5 py-2.5 text-xs lg:text-sm font-mono uppercase tracking-wider font-bold text-white bg-transparent border border-brand-border/60 hover:border-brand-gold hover:text-brand-gold hover:bg-[#1f1b13] transition"
                 >
-                  <CircleNotch size={16} weight="bold" />
-                  <span>Giải Mã Lốp Xe</span>
-                </button>
+                  <House size={17} weight="bold" className="text-brand-gold" />
+                  <span>Home</span>
+                  <ArrowSquareOut size={13} className="text-slate-500 opacity-80" />
+                </a>
 
-                <button
-                  onClick={() => handleTabChange('mechanic')}
-                  className={`flex items-center gap-2 px-4 lg:px-5 py-2 text-xs lg:text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer ${
-                    activeTab === 'mechanic'
-                      ? 'bg-brand-gold text-brand-bg shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-[#1a1815]'
-                  }`}
+                {/* 2. Menu WIKI với Dropdown 2 mục con - Tăng phạm vi bấm & chống mất hover */}
+                <div 
+                  ref={dropdownRef}
+                  className="relative"
+                  onMouseEnter={handleMouseEnterWiki}
+                  onMouseLeave={handleMouseLeaveWiki}
                 >
-                  <Wrench size={16} weight="bold" />
-                  <span>Thợ Máy & Excel (135)</span>
-                </button>
+                  <button
+                    onClick={() => setWikiDropdownOpen(prev => !prev)}
+                    className={`flex items-center gap-2.5 px-4.5 lg:px-5.5 py-2.5 text-xs lg:text-sm font-mono uppercase tracking-wider font-bold transition cursor-pointer border ${
+                      wikiDropdownOpen
+                        ? 'bg-[#1f1b13] text-brand-gold border-brand-gold'
+                        : 'bg-transparent text-white border-brand-border/60 hover:border-brand-gold hover:text-brand-gold'
+                    }`}
+                  >
+                    <BookOpen size={17} weight="bold" className="text-brand-gold" />
+                    <span>Wiki</span>
+                    <CaretDown 
+                      size={14} 
+                      weight="bold" 
+                      className={`transition-transform duration-200 text-brand-gold ${wikiDropdownOpen ? 'rotate-180' : ''}`} 
+                    />
+                  </button>
+
+                  {/* SUBMENU DROPDOWN: Kèm cầu nối vô hình (before:content) ngăn mất hover */}
+                  {wikiDropdownOpen && (
+                    <div 
+                      className="absolute left-0 top-full mt-2 w-80 bg-[#12100b] border border-brand-gold/60 shadow-2xl z-50 p-1.5 space-y-1 font-mono before:content-[''] before:absolute before:-top-3 before:left-0 before:w-full before:h-3 before:bg-transparent"
+                      onMouseEnter={handleMouseEnterWiki}
+                      onMouseLeave={handleMouseLeaveWiki}
+                    >
+                      <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-slate-400 tracking-widest border-b border-[#2b2518] flex items-center justify-between">
+                        <span>DEEPM WIKI TOOLBOX</span>
+                        <span className="text-brand-gold text-[9px]">2 CÔNG CỤ</span>
+                      </div>
+
+                      {/* Submenu 1: Giải Mã Lốp Xe */}
+                      <button
+                        onClick={() => handleTabChange('tire')}
+                        className={`w-full flex items-start gap-3 p-3 text-left transition cursor-pointer border ${
+                          activeTab === 'tire'
+                            ? 'bg-[#211a10] text-brand-gold border-brand-gold/80'
+                            : 'bg-transparent text-slate-300 border-transparent hover:bg-[#19150e] hover:text-white hover:border-[#38301f]'
+                        }`}
+                      >
+                        <CircleNotch size={18} weight="bold" className="text-brand-gold mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                          <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
+                            <span>Giải Mã Lốp Xe</span>
+                            {activeTab === 'tire' && (
+                              <span className="text-[9px] px-1.5 py-0.2 bg-brand-gold text-brand-bg font-bold">ĐANG XEM</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-400 font-normal mt-1 leading-snug">
+                            Tra cứu thông số, tải trọng, tốc độ & tính toán độ lốp xe
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Submenu 2: Thợ Máy & Excel */}
+                      <button
+                        onClick={() => handleTabChange('mechanic')}
+                        className={`w-full flex items-start gap-3 p-3 text-left transition cursor-pointer border ${
+                          activeTab === 'mechanic'
+                            ? 'bg-[#211a10] text-brand-gold border-brand-gold/80'
+                            : 'bg-transparent text-slate-300 border-transparent hover:bg-[#19150e] hover:text-white hover:border-[#38301f]'
+                        }`}
+                      >
+                        <Wrench size={18} weight="bold" className="text-brand-gold mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                          <div className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
+                            <span>Thợ Máy & Excel</span>
+                            {activeTab === 'mechanic' && (
+                              <span className="text-[9px] px-1.5 py-0.2 bg-brand-gold text-brand-bg font-bold">ĐANG XEM</span>
+                            )}
+                          </div>
+                          <div className="text-[11px] text-slate-400 font-normal mt-1 leading-snug">
+                            135 công thức kỹ thuật cơ khí, tiện, phay & xuất bảng Excel
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </nav>
 
               {/* Nút Gọi Hotline & Liên Hệ Desktop */}
@@ -133,6 +249,24 @@ export default function App() {
 
                     {/* Danh sách mục chọn trong Menu Mobile */}
                     <div className="flex flex-col gap-2 font-mono text-sm">
+                      {/* Mục 1: Home sang deepm.vn */}
+                      <a
+                        href="https://deepm.vn/"
+                        className="flex items-center justify-between p-3.5 bg-brand-bg text-slate-200 border border-brand-border hover:border-brand-gold font-bold transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <House size={20} weight="bold" className="text-brand-gold" />
+                          <span>TRANG CHỦ (DEEPM.VN)</span>
+                        </div>
+                        <ArrowSquareOut size={16} className="text-slate-500" />
+                      </a>
+
+                      {/* Phân nhóm Wiki */}
+                      <div className="pt-3 pb-1 text-[11px] font-bold text-slate-500 tracking-wider flex items-center gap-2 border-t border-brand-border mt-1">
+                        <BookOpen size={14} className="text-brand-gold" />
+                        <span>KHO CÔNG CỤ WIKI</span>
+                      </div>
+
                       <button
                         onClick={() => handleTabChange('tire')}
                         className={`flex items-center gap-3 p-3.5 border text-left font-bold transition cursor-pointer ${
@@ -194,31 +328,42 @@ export default function App() {
 
           </div>
 
-          {/* THANH ĐIỀU HƯỚNG TAB NHANH DƯỚI HEADER TRÊN MOBILE (SEGMENTED CONTROL) */}
-          <div className="flex md:hidden border-t border-brand-border py-2 gap-1.5 font-mono">
-            <button
-              onClick={() => handleTabChange('tire')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs uppercase font-bold transition cursor-pointer border ${
-                activeTab === 'tire'
-                  ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
-                  : 'bg-brand-card text-slate-300 border-brand-border'
-              }`}
+          {/* THANH ĐIỀU HƯỚNG NHANH DƯỚI HEADER TRÊN MOBILE */}
+          <div className="flex md:hidden border-t border-brand-border py-2 gap-1.5 font-mono items-center">
+            <a
+              href="https://deepm.vn/"
+              className="flex items-center gap-1 px-3 py-2 bg-brand-card text-slate-300 border border-brand-border hover:border-brand-gold hover:text-brand-gold text-xs uppercase font-bold active:scale-95 transition shrink-0"
+              title="Về Trang chủ DeepM.vn"
             >
-              <CircleNotch size={14} weight="bold" />
-              <span>Giải Mã Lốp</span>
-            </button>
+              <House size={14} weight="bold" className="text-brand-gold" />
+              <span>Home</span>
+            </a>
 
-            <button
-              onClick={() => handleTabChange('mechanic')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs uppercase font-bold transition cursor-pointer border ${
-                activeTab === 'mechanic'
-                  ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
-                  : 'bg-brand-card text-slate-300 border-brand-border'
-              }`}
-            >
-              <Wrench size={14} weight="bold" />
-              <span>Thợ Máy (135)</span>
-            </button>
+            <div className="flex-1 flex gap-1">
+              <button
+                onClick={() => handleTabChange('tire')}
+                className={`flex-1 flex items-center justify-center gap-1 py-2 text-[11px] uppercase font-bold transition cursor-pointer border ${
+                  activeTab === 'tire'
+                    ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
+                    : 'bg-brand-card text-slate-300 border-brand-border'
+                }`}
+              >
+                <CircleNotch size={13} weight="bold" />
+                <span>Wiki: Lốp</span>
+              </button>
+
+              <button
+                onClick={() => handleTabChange('mechanic')}
+                className={`flex-1 flex items-center justify-center gap-1 py-2 text-[11px] uppercase font-bold transition cursor-pointer border ${
+                  activeTab === 'mechanic'
+                    ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-sm'
+                    : 'bg-brand-card text-slate-300 border-brand-border'
+                }`}
+              >
+                <Wrench size={13} weight="bold" />
+                <span>Wiki: Thợ Máy</span>
+              </button>
+            </div>
           </div>
 
         </div>

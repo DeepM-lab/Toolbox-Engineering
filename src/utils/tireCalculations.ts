@@ -64,15 +64,56 @@ export function compareTires(oldTire: TireCalculation, newTire: TireCalculation)
 }
 
 /**
- * Phân tích chuỗi định dạng lốp dạng 265/65R17
+ * Phân tích chuỗi định dạng lốp linh hoạt (hỗ trợ 265/65R17, 265 65 17, 265-65-17, 295/80R22.5, 33x12.5R15, 90/90-14...)
  */
 export function parseTireString(str: string): TireParams | null {
-  const cleaned = str.trim().toUpperCase().replace(/\s+/g, '');
-  const match = cleaned.match(/^(\d{3})\/(\d{2})R?(\d{2})$/);
-  if (!match) return null;
-  return {
-    width: parseInt(match[1], 10),
-    aspectRatio: parseInt(match[2], 10),
-    rimDiameter: parseInt(match[3], 10),
-  };
+  if (!str || !str.trim()) return null;
+  let cleaned = str.trim().toUpperCase().replace(/,/g, '.').replace(/\s+/g, ' ');
+
+  // 1. Dạng Flotation (ví dụ 33x12.5R15 hoặc 35 12.5 17)
+  const floatMatch = cleaned.match(/\b(?:\d{2}(?:\.\d{1,2})?)\s*[X*X\s]\s*(\d{1,2}(?:\.\d{1,2})?)\s*[A-Z-]?\s*(\d{2}(?:\.5)?)\b/i);
+  if (floatMatch) {
+    const diaInch = parseFloat(cleaned.match(/\b(\d{2}(?:\.\d{1,2})?)/)?.[1] || '0');
+    const wInch = parseFloat(floatMatch[1]);
+    const rim = parseFloat(floatMatch[2]);
+    const widthMm = Math.round(wInch * 25.4);
+    const sidewallMm = ((diaInch - rim) / 2) * 25.4;
+    const ratio = Math.round((sidewallMm / widthMm) * 100);
+    return { width: widthMm, aspectRatio: ratio, rimDiameter: rim };
+  }
+
+  // 2. Dạng viết liền không dấu (19555R16, 1955516, 22545ZR18)
+  const contMatch = cleaned.match(/\b(?:HL|LT|ST|P|T)?(\d{3})(\d{2})[A-Z-]?(\d{2}(?:\.5)?)\b/i);
+  if (contMatch) {
+    return {
+      width: parseInt(contMatch[1], 10),
+      aspectRatio: parseInt(contMatch[2], 10),
+      rimDiameter: parseFloat(contMatch[3]),
+    };
+  }
+
+  // 3. Dạng Metric chuẩn và mở rộng (205/55R16, 205 55 16, 205-55-16, 195/55/16, 295/80R22.5, 90/90-14)
+  const metricMatch = cleaned.match(/\b(?:HL|LT|ST|P|T|C)?\s*(\d{2,3})[\/\s-](\d{2})[\/\s-]*[A-Z-]?[\/\s-]*(\d{2}(?:\.5)?)\b/i);
+  if (metricMatch) {
+    return {
+      width: parseInt(metricMatch[1], 10),
+      aspectRatio: parseInt(metricMatch[2], 10),
+      rimDiameter: parseFloat(metricMatch[3]),
+    };
+  }
+
+  // 4. Dạng khuyết tỷ lệ hông (như 195R15C, 11R22.5, 7.50R16)
+  const noRatioMatch = cleaned.match(/\b(\d{1,3}(?:\.\d{1,2})?)\s*[A-Z-]\s*(\d{2}(?:\.5)?)\b/i);
+  if (noRatioMatch) {
+    const rawW = parseFloat(noRatioMatch[1]);
+    const width = rawW <= 15 ? Math.round(rawW * 25.4) : Math.round(rawW);
+    const rim = parseFloat(noRatioMatch[2]);
+    return {
+      width,
+      aspectRatio: rawW <= 15 ? (rawW >= 9 ? 90 : 100) : 80,
+      rimDiameter: rim,
+    };
+  }
+
+  return null;
 }

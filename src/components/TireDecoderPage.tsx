@@ -39,12 +39,14 @@ import { Badge } from '@/components/ui/badge';
 import { generateExpertAdvice } from '../utils/tireAdvisor';
 
 const POPULAR_TIRES = [
-  { label: 'Vios / City', spec: 'P185/60R15 84H' },
-  { label: 'Mazda 3 / K3', spec: '205/60R16 92V' },
-  { label: 'Ranger / Hilux Zin', spec: 'LT265/65R17 112T' },
-  { label: 'Raptor / Offroad 33"', spec: 'LT285/70R17 121S XL' },
-  { label: 'Land Cruiser LC80', spec: '275/70R16 114H' },
-  { label: 'Porsche / Sport', spec: '225/45ZR18 95W N0' }
+  { label: 'Xe con Vios / City', spec: '185/60R15 84H' },
+  { label: 'Sedan Mazda 3 / Civic', spec: '205/60R16 92V' },
+  { label: 'Bán tải Ranger / Hilux', spec: 'Bridgestone 265/65R17 112T Dueler A/T' },
+  { label: 'Off-road 33" Bán tải', spec: 'BFGoodrich 33X12.50R15 LT KO2' },
+  { label: 'Xe máy Vision / Lead', spec: '90/90-14 46P Tubeless' },
+  { label: 'Xe tải Isuzu / Hino', spec: 'Casumina 7.50-16 14PR' },
+  { label: 'Container / Xe khách', spec: 'DRC 11R22.5 16PR D600' },
+  { label: 'Chép đủ hông lốp', spec: 'Michelin 205/55 R16 91V DOT 4522 Treadwear 340 Max Press 50 PSI' }
 ];
 
 export const TireDecoderPage: React.FC = () => {
@@ -52,8 +54,8 @@ export const TireDecoderPage: React.FC = () => {
   const [mode, setMode] = useLocalStorage<'decode' | 'compare' | 'knowledge'>('deepm_tire_mode', 'decode');
 
   // Ô nhập chuỗi lốp
-  const [inputText, setInputText] = useLocalStorage<string>('deepm_tire_input', 'P205/55R16 91V XL');
-  const [parsedSpec, setParsedSpec] = useState<FullTireSpec | null>(() => parseFullTireString(inputText) || parseFullTireString('P205/55R16 91V XL'));
+  const [inputText, setInputText] = useLocalStorage<string>('deepm_tire_input', 'Michelin 205/55 R16 91V DOT 4522 Treadwear 340 Max Press 50 PSI');
+  const [parsedSpec, setParsedSpec] = useState<FullTireSpec | null>(() => parseFullTireString(inputText) || parseFullTireString('205/55R16 91V XL'));
   const [parseError, setParseError] = useState<string | null>(null);
 
   // Trạng thái mở accordion FAQ của chuyên gia
@@ -105,6 +107,14 @@ export const TireDecoderPage: React.FC = () => {
         aspectRatio: result.aspectRatio,
         rimDiameter: result.rimDiameter,
       });
+
+      // Tự động đồng bộ các widget phía dưới khi chuỗi có chứa DOT hoặc Áp suất MAX PRESS
+      if (result.dotCode) {
+        setDotInput(result.dotCode);
+      }
+      if (result.maxPressurePsi) {
+        setMaxPressInput(result.maxPressurePsi);
+      }
     } else {
       const simple = parseTireString(textToParse);
       if (simple) {
@@ -117,12 +127,10 @@ export const TireDecoderPage: React.FC = () => {
           construction: 'R',
         });
       } else {
-        setParseError(`Ký hiệu "${textToParse}" không đúng định dạng hoặc vượt quá quy chuẩn thực tế. Vui lòng kiểm tra lại (Ví dụ: 205/55R16 91V, LT265/75R16 123/120R E, P245/40ZR19 98Y XL MO...)`);
+        setParseError(`Ký hiệu "${textToParse}" không tìm thấy kích thước hợp lệ. Hệ thống hỗ trợ nhập tự do (ví dụ: Michelin Primacy 4 205/55R16 91V, 205 55 16, 11R22.5, 7.50-16, 90/90-14, 33x12.5R15 kèm DOT và áp suất...)`);
       }
     }
   };
-
-
 
   const handleSelectQuickTire = (spec: string) => {
     setInputText(spec);
@@ -237,6 +245,94 @@ export const TireDecoderPage: React.FC = () => {
           {/* KẾT QUẢ GIẢI MÃ */}
           {parsedSpec && (
             <div className="space-y-6">
+              {/* SMART EXTRACTION HIGHLIGHT BAR - BÓC TÁCH THÔNG MINH */}
+              {(parsedSpec.brand || parsedSpec.pattern || parsedSpec.dotCode || parsedSpec.utqg || parsedSpec.maxPressurePsi || parsedSpec.normalizedSize) && (
+                <div className="bg-[#15120c] border border-brand-gold/60 p-4 sm:p-5 font-mono space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#3d3422] pb-2.5">
+                    <div className="flex items-center gap-2 text-brand-gold text-xs sm:text-sm font-bold uppercase tracking-wider">
+                      <CheckCircle size={18} weight="fill" className="text-brand-gold" />
+                      <span>DEEPM SMART EXTRACTOR — ĐÃ TỰ ĐỘNG BÓC TÁCH CÁC THÔNG SỐ TỪ CHUỖI CỦA BẠN</span>
+                    </div>
+                    {parsedSpec.normalizedSize && (
+                      <span className="px-2.5 py-0.5 bg-brand-gold text-brand-bg text-xs font-bold font-mono">
+                        SIZE QUY CHUẨN: {parsedSpec.normalizedSize}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
+                    {/* Thương hiệu */}
+                    <div className="bg-brand-bg p-2.5 border border-brand-border">
+                      <span className="text-slate-400 block text-[10px] uppercase">Thương hiệu</span>
+                      <span className="text-white font-bold text-sm block mt-0.5 truncate" title={parsedSpec.brand || 'Chưa rõ hãng'}>
+                        {parsedSpec.brand || 'Chưa rõ hãng'}
+                      </span>
+                      {parsedSpec.brandCountry && (
+                        <span className="text-brand-gold text-[10px] block truncate">{parsedSpec.brandCountry}</span>
+                      )}
+                    </div>
+
+                    {/* Dòng gai / Hoa lốp */}
+                    <div className="bg-brand-bg p-2.5 border border-brand-border">
+                      <span className="text-slate-400 block text-[10px] uppercase">Dòng gai / Model</span>
+                      <span className="text-white font-bold text-sm block mt-0.5 truncate" title={parsedSpec.pattern || 'Tiêu chuẩn'}>
+                        {parsedSpec.pattern || 'Tiêu chuẩn'}
+                      </span>
+                    </div>
+
+                    {/* Phân loại xe */}
+                    <div className="bg-brand-bg p-2.5 border border-brand-border">
+                      <span className="text-slate-400 block text-[10px] uppercase">Phân loại xe</span>
+                      <span className="text-brand-gold font-bold text-xs block mt-0.5">
+                        {parsedSpec.isMotorcycle ? 'Lốp Xe Máy / Mô tô' : (parsedSpec.isCommercialTruck ? 'Xe Tải Nặng / Buýt' : (parsedSpec.isFlotation ? 'Bán Tải / Offroad' : 'Xe Du Lịch'))}
+                      </span>
+                    </div>
+
+                    {/* Mã sản xuất DOT */}
+                    <div className="bg-brand-bg p-2.5 border border-brand-border">
+                      <span className="text-slate-400 block text-[10px] uppercase">Năm SX (DOT)</span>
+                      {parsedSpec.dotAnalysis ? (
+                        <div className="mt-0.5">
+                          <span className="text-white font-bold text-xs block">Tuần {parsedSpec.dotAnalysis.week}/{parsedSpec.dotAnalysis.year}</span>
+                          <span className={`text-[10px] block font-bold ${parsedSpec.dotAnalysis.isExpired ? 'text-rose-400' : 'text-emerald-400'}`}>
+                            {parsedSpec.dotAnalysis.statusLabel}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-500 text-xs block mt-0.5">Chưa có mã DOT</span>
+                      )}
+                    </div>
+
+                    {/* Tiêu chuẩn UTQG */}
+                    <div className="bg-brand-bg p-2.5 border border-brand-border">
+                      <span className="text-slate-400 block text-[10px] uppercase">Chỉ số UTQG Mỹ</span>
+                      {parsedSpec.utqg ? (
+                        <div className="mt-0.5 space-y-0.5 text-[11px]">
+                          {parsedSpec.utqg.treadwear && <div className="text-white">Mòn: <b className="text-brand-gold">{parsedSpec.utqg.treadwear}</b></div>}
+                          {parsedSpec.utqg.traction && <div className="text-white">Bám: <b className="text-brand-gold">{parsedSpec.utqg.traction}</b></div>}
+                          {parsedSpec.utqg.temperature && <div className="text-white">Nhiệt: <b className="text-brand-gold">{parsedSpec.utqg.temperature}</b></div>}
+                        </div>
+                      ) : (
+                        <span className="text-slate-500 text-xs block mt-0.5">Không có UTQG</span>
+                      )}
+                    </div>
+
+                    {/* Giới hạn áp suất */}
+                    <div className="bg-brand-bg p-2.5 border border-brand-border">
+                      <span className="text-slate-400 block text-[10px] uppercase">Áp suất tối đa</span>
+                      {parsedSpec.maxPressurePsi ? (
+                        <div className="mt-0.5">
+                          <span className="text-brand-gold font-bold text-sm block">{parsedSpec.maxPressurePsi} PSI</span>
+                          <span className="text-slate-400 text-[10px] block">~{(parsedSpec.maxPressurePsi * 0.0689476).toFixed(2)} Bar</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-500 text-xs block mt-0.5">---</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* 4 Thẻ chỉ số chuẩn Quốc tế */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 font-mono">
                 {/* 1. Chỉ số tải trọng */}

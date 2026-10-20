@@ -46,10 +46,16 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       score -= 15;
     } else if (!spec.maxLoadKg) {
       score -= 30; // Chỉ số tải không tồn tại trong quy chuẩn
-    } else if (spec.loadIndex < 70) {
-      score -= 25; // Quá thấp, nguy hiểm
-    } else if (spec.loadIndex >= 70 && spec.loadIndex <= 78) {
-      score -= 10; // Chỉ hợp xe siêu nhỏ
+    } else if (spec.isMotorcycle) {
+      if (spec.loadIndex < 35) {
+        score -= 20; // Lốp xe máy quá yếu
+      }
+    } else {
+      if (spec.loadIndex < 70) {
+        score -= 25; // Quá thấp đối với ô tô
+      } else if (spec.loadIndex >= 70 && spec.loadIndex <= 78) {
+        score -= 10; // Chỉ hợp xe siêu nhỏ
+      }
     }
 
     // 2. Đánh giá Speed Rating khi có nhập
@@ -59,9 +65,9 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       score -= 20; // Mã tốc độ không xác định
     } else {
       const sr = spec.speedRating.replace(/[()]/g, '').toUpperCase();
-      if (sr === 'L' || sr === 'M') {
-        score -= 15; // Không phù hợp chạy cao tốc
-      } else if (sr === 'N' || sr === 'P') {
+      if (!spec.isCommercialTruck && (sr === 'L' || sr === 'M')) {
+        score -= 15; // Không phù hợp chạy cao tốc với xe du lịch
+      } else if (!spec.isMotorcycle && (sr === 'N' || sr === 'P')) {
         score -= 10;
       }
     }
@@ -88,8 +94,8 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     score = Math.min(score, 65); // Khống chế tối đa 65 điểm: chỉ là lốp tạm thời khẩn cấp
   }
 
-  // 6. Đánh giá cấu trúc Bias / Diagonal (D hoặc B)
-  if (spec.construction === 'D' || spec.construction === 'B') {
+  // 6. Đánh giá cấu trúc Bias / Diagonal (D hoặc B hoặc -)
+  if (!spec.isMotorcycle && (spec.construction === 'D' || spec.construction === 'B' || spec.construction === '-')) {
     score -= 15;
   }
 
@@ -126,6 +132,10 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     summary = `Thông số lốp ${specText} có kích thước bất thường, vượt ngoài dải quy chuẩn thông dụng của các nhà sản xuất ô tô quốc tế. Cần kiểm tra lại dãy ký tự dập nổi trên thành lốp thực tế.`;
   } else if (spec.isFlotation && spec.flotationSpec) {
     summary = `Lốp ${specText} thuộc hệ Inch Flotation (Đường kính ${spec.flotationSpec.diameterInch}" x Bản rộng ${spec.flotationSpec.widthInch}" mâm R${spec.flotationSpec.rimInch}"), tương đương cỡ Metric ~${spec.width}/${spec.aspectRatio}R${spec.rimDiameter}. Thiết kế chuyên dụng cho xe bán tải, SUV off-road gầm cao leo dốc và lội bùn lầy.`;
+  } else if (spec.isMotorcycle) {
+    summary = `Lốp ${specText} thuộc quy chuẩn lốp xe máy, mô tô và xe tay ga (Bề rộng ${spec.width}mm, tỷ lệ hông ${spec.aspectRatio}%, mâm ${spec.rimDiameter} inch). Kết cấu tối ưu cho độ linh hoạt góc nghiêng khi vào cua.`;
+  } else if (spec.isCommercialTruck) {
+    summary = `Lốp ${specText} thuộc phân khúc xe thương mại, xe tải nặng và vận tải hành khách (Mâm ${spec.rimDiameter}"). Thiết kế chịu tải trọng cao, hông lốp gia cố nhiều lớp bố thép vận hành bền bỉ trên các tuyến đường dài.`;
   } else if (spec.vehicleType === 'T') {
     summary = `Lốp ${specText} là lốp dự phòng thay thế tạm thời (Temporary Spare). Chỉ sử dụng trong tình huống khẩn cấp để di chuyển quãng đường ngắn về garage/xưởng dịch vụ, khuyến nghị tốc độ tối đa không quá 80 km/h, tuyệt đối không chạy đường dài.`;
   } else if (!hasFullRating) {
