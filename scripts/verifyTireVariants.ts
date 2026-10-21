@@ -1232,7 +1232,7 @@ if (typeof process !== 'undefined' && process.argv && process.argv[1] && process
 
 // Tương thích Vitest Runner: Thực thi và in toàn bộ báo cáo đối sánh khách quan
 describe('Bộ Kiểm Định Độc Lập Biến Thể Thông Số Lốp (Independent Tire Variant Verification)', () => {
-  it('Tất cả 55+ ca kiểm thử phải vượt qua đối sánh 100% (Pass Rate = 100%)', () => {
+  it('Tất cả 64 ca kiểm thử phải vượt qua đối sánh 100% (Pass Rate = 100%)', () => {
     const success = printVerificationReport();
     expect(success).toBe(true);
   });
