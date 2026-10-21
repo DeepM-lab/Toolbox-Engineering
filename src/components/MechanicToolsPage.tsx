@@ -485,8 +485,8 @@ export const MechanicToolsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Các pills danh mục - Vuốt ngang mượt mà trên điện thoại */}
-            <div className="flex gap-2 pt-3 border-t border-[#26221a] overflow-x-auto pb-2 scrollbar-none">
+            {/* Các pills danh mục - Hiển thị đầy đủ 12 chuyên đề*/}
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-[#26221a]">
               {TOOL_CATEGORIES.map((cat) => {
                 const isActive = selectedCategory === cat.id;
                 // Rút gọn tên tab cho thoáng mắt
@@ -495,7 +495,7 @@ export const MechanicToolsPage: React.FC = () => {
                   <button
                     key={cat.id}
                     onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-[13px] font-mono uppercase tracking-wider transition cursor-pointer border shrink-0 whitespace-nowrap ${
+                    className={`px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-[13px] font-mono uppercase tracking-wider transition cursor-pointer border whitespace-nowrap ${
                       isActive
                         ? 'bg-brand-gold text-brand-bg border-brand-gold font-black shadow-md'
                         : 'bg-[#0e0d0b] text-slate-300 border-[#2b261e] hover:border-brand-gold/60 hover:text-white hover:bg-[#1a1713]'

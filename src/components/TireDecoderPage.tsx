@@ -40,6 +40,7 @@ import { generateExpertAdvice } from '../utils/tireAdvisor';
 
 const POPULAR_TIRES = [
   { label: 'Xe con Vios / City', spec: '185/60R15 84H' },
+  { label: 'Sedan 14" phổ thông', spec: '195/70R14 91T' },
   { label: 'Sedan Mazda 3 / Civic', spec: '205/60R16 92V' },
   { label: 'Bán tải Ranger / Hilux', spec: 'Bridgestone 265/65R17 112T Dueler A/T' },
   { label: 'Off-road 33" Bán tải', spec: 'BFGoodrich 33X12.50R15 LT KO2' },
@@ -132,6 +133,29 @@ export const TireDecoderPage: React.FC = () => {
     }
   };
 
+  const handleLiveParseInput = (textToParse: string) => {
+    if (!textToParse || !textToParse.trim()) {
+      setParseError(null);
+      return;
+    }
+    const result = parseFullTireString(textToParse);
+    if (result) {
+      setParseError(result.validationWarning || null);
+      setParsedSpec(result);
+      setCurrentTire({
+        width: result.width,
+        aspectRatio: result.aspectRatio,
+        rimDiameter: result.rimDiameter,
+      });
+      if (result.dotCode) {
+        setDotInput(result.dotCode);
+      }
+      if (result.maxPressurePsi) {
+        setMaxPressInput(result.maxPressurePsi);
+      }
+    }
+  };
+
   const handleSelectQuickTire = (spec: string) => {
     setInputText(spec);
     handleParseInput(spec);
@@ -205,9 +229,13 @@ export const TireDecoderPage: React.FC = () => {
               <input
                 type="text"
                 value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setInputText(val);
+                  handleLiveParseInput(val);
+                }}
                 onKeyDown={(e) => e.key === 'Enter' && handleParseInput(inputText)}
-                placeholder="Ví dụ: P205/55R16 91V XL"
+                placeholder="Ví dụ: P205/55R16 91V XL, 195/70 R14 91T..."
                 className="flex-1 bg-brand-bg border border-input px-4 py-3 text-lg font-mono font-bold text-brand-gold focus:border-brand-gold focus:outline-none tracking-wider uppercase"
               />
               <button
@@ -324,6 +352,9 @@ export const TireDecoderPage: React.FC = () => {
                         <div className="mt-0.5">
                           <span className="text-brand-gold font-bold text-sm block">{parsedSpec.maxPressurePsi} PSI</span>
                           <span className="text-slate-400 text-[10px] block">~{(parsedSpec.maxPressurePsi * 0.0689476).toFixed(2)} Bar</span>
+                          <span className="text-brand-gold/80 text-[10px] block mt-1 leading-tight font-sans">
+                            * Giới hạn chịu tải vỏ lốp (Không bơm mức này hàng ngày)
+                          </span>
                         </div>
                       ) : (
                         <span className="text-slate-500 text-xs block mt-0.5">---</span>
@@ -362,6 +393,11 @@ export const TireDecoderPage: React.FC = () => {
                       ? `Tổng tải 4 bánh: ${(parsedSpec.maxTotalLoadKg).toLocaleString('vi-VN')} kg`
                       : 'Chưa có mã tải'}
                   </span>
+                  {parsedSpec.maxTotalLoadKg && (
+                    <span className="text-[10px] text-slate-400/80 mt-1 block font-sans leading-tight">
+                      * Đối chiếu tải trọng trục (GAWR) trên tem xe, tính đến phân bổ tải trước/sau (60/40)
+                    </span>
+                  )}
                 </div>
 
                 {/* 2. Vận tốc tối đa */}
@@ -467,7 +503,7 @@ export const TireDecoderPage: React.FC = () => {
                         advice.safetyColor === 'emerald' ? 'bg-emerald-950/30 border-emerald-500/40' :
                         advice.safetyColor === 'amber' ? 'bg-[#1a1711] border-brand-gold/40' : 'bg-rose-950/30 border-rose-500/40'
                       }`}>
-                        <div className="text-xs font-mono uppercase tracking-widest text-slate-300 font-bold">ĐÁNH GIÁ AN TOÀN</div>
+                        <div className="text-xs font-mono uppercase tracking-widest text-slate-300 font-bold">CHẤM ĐIỂM THÔNG SỐ</div>
                         <div className={`text-5xl font-black font-mono tracking-tight my-1.5 ${
                           advice.safetyColor === 'emerald' ? 'text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.3)]' :
                           advice.safetyColor === 'amber' ? 'text-brand-gold drop-shadow-[0_0_12px_rgba(201,169,97,0.3)]' : 'text-rose-400 drop-shadow-[0_0_12px_rgba(251,113,133,0.3)]'
@@ -477,6 +513,9 @@ export const TireDecoderPage: React.FC = () => {
                           advice.safetyColor === 'emerald' ? 'text-emerald-400 border-emerald-500/30' :
                           advice.safetyColor === 'amber' ? 'text-brand-gold border-brand-gold/30' : 'text-rose-400 border-rose-500/30'
                         }`}>{advice.safetyLabel}</div>
+                        <div className="mt-3 pt-2 border-t border-brand-border/60 text-[10px] text-slate-400 font-sans leading-tight text-center max-w-40 mx-auto">
+                          * Điểm số kỹ thuật dựa trên thông số vỏ lốp, không thay thế kiểm tra độ mòn cơ học, gai lốp và chửa hông thực tế.
+                        </div>
                       </div>
 
                       {/* Summary & Checklist */}

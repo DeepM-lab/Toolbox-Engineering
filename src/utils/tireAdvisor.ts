@@ -18,8 +18,8 @@ export interface FaqItem {
 }
 
 export interface ExpertAdvice {
-  safetyScore: number; // 0-100
-  safetyLabel: 'AN TOÀN' | 'CẦN LƯU Ý' | 'KIỂM TRA NGAY';
+  safetyScore: number; // 0-100 (Chấm điểm thông số chuẩn mực)
+  safetyLabel: 'ĐẠT CHUẨN KỸ THUẬT' | 'CẦN LƯU Ý' | 'KHÔNG PHÙ HỢP';
   safetyColor: 'emerald' | 'amber' | 'rose';
   summary: string;
   checklist: ChecklistItem[];
@@ -33,55 +33,74 @@ export interface ExpertAdvice {
  */
 export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
   let score = 100;
+  let hardCeiling = 100;
   const sidewallHeight = Math.round((spec.width * spec.aspectRatio) / 100);
 
   // ==========================================
-  // A. TÍNH TOÁN ĐIỂM AN TOÀN (SAFETY SCORE)
+  // A. TÍNH TOÁN ĐIỂM THÔNG SỐ (TECHNICAL SCORE)
   // ==========================================
-  const hasFullRating = Boolean(spec.loadIndex || spec.speedRating);
 
-  if (hasFullRating) {
-    // 1. Đánh giá Load Index khi có nhập
-    if (!spec.loadIndex) {
-      score -= 15;
-    } else if (!spec.maxLoadKg) {
-      score -= 30; // Chỉ số tải không tồn tại trong quy chuẩn
-    } else if (spec.isMotorcycle) {
-      if (spec.loadIndex < 35) {
-        score -= 20; // Lốp xe máy quá yếu
-      }
-    } else {
-      if (spec.loadIndex < 70) {
-        score -= 25; // Quá thấp đối với ô tô
-      } else if (spec.loadIndex >= 70 && spec.loadIndex <= 78) {
-        score -= 10; // Chỉ hợp xe siêu nhỏ
-      }
-    }
-
-    // 2. Đánh giá Speed Rating khi có nhập
-    if (!spec.speedRating) {
-      score -= 10;
-    } else if (!spec.maxSpeedKmH) {
-      score -= 20; // Mã tốc độ không xác định
-    } else {
-      const sr = spec.speedRating.replace(/[()]/g, '').toUpperCase();
-      if (!spec.isCommercialTruck && (sr === 'L' || sr === 'M')) {
-        score -= 15; // Không phù hợp chạy cao tốc với xe du lịch
-      } else if (!spec.isMotorcycle && (sr === 'N' || sr === 'P')) {
-        score -= 10;
-      }
+  // 1. Thẩm định độc lập CHỈ SỐ TẢI TRỌNG (Load Index)
+  if (spec.loadIndex === undefined) {
+    score -= 10; // Khuyết chỉ số tải trọng: trừ nhẹ 10đ để nhắc nhở tra cứu đủ
+  } else if (!spec.maxLoadKg) {
+    score -= 30; // Chỉ số tải không tồn tại trong bảng quy chuẩn quốc tế
+    hardCeiling = Math.min(hardCeiling, 45); // Lỗi chí mạng -> khóa trần Đỏ
+  } else if (spec.isMotorcycle) {
+    if (spec.loadIndex < 35) {
+      score -= 20; // Lốp xe máy quá yếu
+      hardCeiling = Math.min(hardCeiling, 60);
     }
   } else {
-    // Người dùng chỉ nhập kích thước hình học thuần túy (ví dụ 205/55R16)
-    // Không trừ oan 50 điểm, chỉ trừ nhẹ 10 điểm để nhắc nhở bổ sung
-    score -= 10;
+    if (spec.loadIndex < 70) {
+      score -= 30; // Quá thấp đối với ô tô con thông thường (< 335 kg/bánh)
+      hardCeiling = Math.min(hardCeiling, 45); // Nguy hiểm tải trọng -> khóa trần Đỏ
+    } else if (spec.loadIndex >= 70 && spec.loadIndex <= 78) {
+      score -= 10; // Chỉ hợp xe siêu nhỏ (Morning, i10, Wigo)
+    }
+  }
+
+  // 2. Thẩm định độc lập MÃ TỐC ĐỘ (Speed Rating)
+  const isOffRoadOrLt = Boolean(
+    spec.isFlotation ||
+    spec.vehicleType === 'LT' ||
+    spec.terrainOrTech?.some(t => ['A/T', 'M/T', 'R/T'].includes(t.code)) ||
+    (spec.rawString && /\b(?:A\/T|M\/T|R\/T|KO2|WILDPEAK|DISCOVERER|OPEN\s*COUNTRY|MUD|TRAIL)\b/i.test(spec.rawString))
+  );
+
+  if (!spec.speedRating) {
+    score -= 5; // Khuyết mã tốc độ: trừ nhẹ 5đ
+  } else if (!spec.maxSpeedKmH) {
+    score -= 25; // Mã tốc độ không xác định trong quy chuẩn
+    hardCeiling = Math.min(hardCeiling, 45); // Khóa trần Đỏ
+  } else {
+    const sr = spec.speedRating.replace(/[()]/g, '').toUpperCase();
+    if (!spec.isMotorcycle && !spec.isCommercialTruck) {
+      if (['F', 'G', 'J', 'K', 'L'].includes(sr)) {
+        // Tốc độ <= 120 km/h: Dưới hoặc bằng trần cao tốc Việt Nam -> Nguy cơ quá nhiệt
+        score -= 30;
+        hardCeiling = Math.min(hardCeiling, 45); // Khóa trần Đỏ
+      } else if (['M', 'N'].includes(sr)) {
+        // M (130 km/h), N (140 km/h): Sát trần cao tốc
+        score -= 15;
+        hardCeiling = Math.min(hardCeiling, 65); // Khóa trần Vàng
+      } else if (['P', 'Q'].includes(sr)) {
+        // P (150 km/h), Q (160 km/h)
+        if (isOffRoadOrLt) {
+          // Lốp địa hình bán tải A/T, M/T, Flotation: Hoàn toàn bình thường, an toàn trên cao tốc VN
+          score -= 0; // Không trừ, không khóa trần!
+        } else {
+          // Xe du lịch sedan/hatchback thông thường mà dùng lốp P/Q
+          score -= 5;
+        }
+      }
+    }
   }
 
   // 3. Đánh giá Tỷ lệ chiều cao hông lốp (Aspect Ratio)
-  if (spec.aspectRatio < 45) {
-    score -= 15; // Ultra-low profile, nguy cơ cấn móp vành cao
-  } else if (spec.aspectRatio >= 45 && spec.aspectRatio <= 49) {
-    score -= 5;
+  // Bỏ hoàn toàn trừ điểm nặng (10-20đ). Chỉ trừ tối đa 5 điểm tiện nghi nếu aspectRatio < 40
+  if (!spec.isMotorcycle && spec.aspectRatio < 40) {
+    score -= 5; // Hông lốp mỏng thể thao, giảm độ êm ái tiện nghi
   }
 
   // 4. Đánh giá xe bán tải / tải nhẹ (LT)
@@ -91,7 +110,8 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
 
   // 5. Đánh giá lốp dự phòng tạm thời (T)
   if (spec.vehicleType === 'T') {
-    score = Math.min(score, 65); // Khống chế tối đa 65 điểm: chỉ là lốp tạm thời khẩn cấp
+    score -= 25;
+    hardCeiling = Math.min(hardCeiling, 65); // Khóa trần tối đa 65 điểm: chỉ là lốp tạm thời khẩn cấp
   }
 
   // 6. Đánh giá cấu trúc Bias / Diagonal (D hoặc B hoặc -)
@@ -99,26 +119,42 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     score -= 15;
   }
 
-  // 7. Cảnh báo thông số vượt ngưỡng quy chuẩn thực tế
+  // 7. Cảnh báo thông số vượt ngưỡng quy chuẩn thực tế (Dị tật hình học kích thước)
   if (spec.validationWarning) {
     score -= 40;
+    hardCeiling = Math.min(hardCeiling, 40); // Khóa trần Đỏ <= 40 cho kích thước bất thường
   }
 
-  // Giới hạn điểm từ 0 đến 100
-  const safetyScore = Math.max(0, Math.min(100, score));
+  // 8. Đánh giá mã DOT (tuổi lốp thực tế) theo bậc thang khấu hao chính xác
+  if (spec.dotAnalysis) {
+    const age = spec.dotAnalysis.ageYears ?? 0;
+    if (spec.dotAnalysis.isExpired || age >= 6) {
+      score -= 50; // Quá 6 năm tuổi: cao su lão hóa, mất đàn hồi nghiêm trọng
+      hardCeiling = Math.min(hardCeiling, 45); // Ép thẳng xuống vùng Đỏ
+    } else if (spec.dotAnalysis.status === 'warning' || age >= 5) {
+      score -= 25; // 5-6 năm tuổi: cao su chai cứng
+      hardCeiling = Math.min(hardCeiling, 65); // Khóa trần Vàng
+    } else if (age >= 3) {
+      score -= 10; // 3 - < 5 năm tuổi: khấu hao vật liệu tự nhiên theo thời gian
+    }
+    // < 3 năm tuổi: 0 điểm khấu hao
+  }
 
-  // Phân loại nhãn và màu sắc
-  let safetyLabel: 'AN TOÀN' | 'CẦN LƯU Ý' | 'KIỂM TRA NGAY';
+  // Giới hạn điểm cuối cùng với hardCeiling
+  const safetyScore = Math.max(0, Math.min(hardCeiling, Math.max(0, score)));
+
+  // Phân loại nhãn và màu sắc chuẩn mực
+  let safetyLabel: 'ĐẠT CHUẨN KỸ THUẬT' | 'CẦN LƯU Ý' | 'KHÔNG PHÙ HỢP';
   let safetyColor: 'emerald' | 'amber' | 'rose';
 
   if (safetyScore >= 80) {
-    safetyLabel = 'AN TOÀN';
+    safetyLabel = 'ĐẠT CHUẨN KỸ THUẬT';
     safetyColor = 'emerald';
   } else if (safetyScore >= 60) {
     safetyLabel = 'CẦN LƯU Ý';
     safetyColor = 'amber';
   } else {
-    safetyLabel = 'KIỂM TRA NGAY';
+    safetyLabel = 'KHÔNG PHÙ HỢP';
     safetyColor = 'rose';
   }
 
@@ -138,10 +174,12 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     summary = `Lốp ${specText} thuộc phân khúc xe thương mại, xe tải nặng và vận tải hành khách (Mâm ${spec.rimDiameter}"). Thiết kế chịu tải trọng cao, hông lốp gia cố nhiều lớp bố thép vận hành bền bỉ trên các tuyến đường dài.`;
   } else if (spec.vehicleType === 'T') {
     summary = `Lốp ${specText} là lốp dự phòng thay thế tạm thời (Temporary Spare). Chỉ sử dụng trong tình huống khẩn cấp để di chuyển quãng đường ngắn về garage/xưởng dịch vụ, khuyến nghị tốc độ tối đa không quá 80 km/h, tuyệt đối không chạy đường dài.`;
-  } else if (!hasFullRating) {
+  } else if (spec.loadIndex === undefined && !spec.speedRating) {
     summary = `Lốp ${specText} có kích thước hình học hợp lệ. Bạn nên nhập thêm chỉ số tải trọng và mã tốc độ (ví dụ 91V, 112T) để DeepM Lab thẩm định sức chịu tải và giới hạn tốc độ chi tiết hơn.`;
+  } else if (spec.loadIndex === undefined || !spec.speedRating) {
+    summary = `Lốp ${specText} có kích thước hợp lệ nhưng chưa đủ bộ đôi tải trọng & tốc độ. Bạn nên bổ sung đầy đủ để hệ thống đánh giá chuẩn xác nhất.`;
   } else if (safetyScore >= 80) {
-    summary = `Lốp ${specText} có thông số đầy đủ và rất hợp lý. Đảm bảo an toàn kỹ thuật cao trên các cung đường tiêu chuẩn và cao tốc.`;
+    summary = `Lốp ${specText} có thông số đầy đủ và đạt chuẩn kỹ thuật. Đảm bảo an toàn kỹ thuật cao trên các cung đường tiêu chuẩn và cao tốc.`;
   } else if (safetyScore >= 60) {
     summary = `Lốp ${specText} có một số điểm kỹ thuật cần lưu ý trước khi vận hành (độ dày thành lốp, giới hạn vận tốc hoặc tính chất lốp chuyên dụng).`;
   } else {
@@ -163,7 +201,27 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       });
     } else {
       const loadKg = `${spec.maxLoadKg} kg/lốp`;
-      if (spec.loadIndex >= 82) {
+      if (spec.isMotorcycle) {
+        if (spec.loadIndex >= 38) {
+          checklist.push({
+            label: 'Chỉ số tải trọng',
+            status: 'ok',
+            note: `Chỉ số ${spec.loadIndex} (${loadKg}) — đạt chuẩn an toàn chịu tải cho xe máy và xe tay ga.`
+          });
+        } else if (spec.loadIndex >= 33) {
+          checklist.push({
+            label: 'Chỉ số tải trọng',
+            status: 'warn',
+            note: `Chỉ số ${spec.loadIndex} (${loadKg}) — tải trọng vừa đủ cho xe số phân khối nhỏ.`
+          });
+        } else {
+          checklist.push({
+            label: 'Chỉ số tải trọng',
+            status: 'error',
+            note: `Chỉ số ${spec.loadIndex} (${loadKg}) — tải trọng quá thấp đối với xe máy hai bánh.`
+          });
+        }
+      } else if (spec.loadIndex >= 82) {
         checklist.push({
           label: 'Chỉ số tải trọng',
           status: 'ok',
@@ -179,7 +237,7 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
         checklist.push({
           label: 'Chỉ số tải trọng',
           status: 'error',
-          note: `Chỉ số ${spec.loadIndex} (${loadKg}) — tải trọng quá thấp, nguy hiểm khi tải nặng hoặc chạy tốc độ cao.`
+          note: `Chỉ số ${spec.loadIndex} (${loadKg}) — tải trọng quá thấp đối với xe ô tô, nguy hiểm khi tải nặng hoặc chạy tốc độ cao.`
         });
       }
     }
@@ -191,74 +249,116 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     });
   }
 
-  // 2. Giới hạn tốc độ cao tốc
+  // 2. Giới hạn tốc độ vận hành
   if (spec.maxSpeedKmH !== undefined && spec.speedRating) {
-    if (spec.maxSpeedKmH >= 130) {
-      checklist.push({
-        label: 'Giới hạn tốc độ cao tốc',
-        status: 'ok',
-        note: `Mã ${spec.speedRating} cho phép ${spec.maxSpeedKmH} km/h — an toàn cho cao tốc VN (tối đa 120 km/h).`
-      });
-    } else if (spec.maxSpeedKmH >= 100) {
-      checklist.push({
-        label: 'Giới hạn tốc độ cao tốc',
-        status: 'warn',
-        note: `Mã ${spec.speedRating} giới hạn ${spec.maxSpeedKmH} km/h — sát trần tốc độ cao tốc VN, nên chạy cẩn trọng.`
-      });
+    if (spec.isMotorcycle) {
+      if (spec.maxSpeedKmH >= 100) {
+        checklist.push({
+          label: 'Giới hạn tốc độ xe máy',
+          status: 'ok',
+          note: `Mã ${spec.speedRating} cho phép ${spec.maxSpeedKmH} km/h — vượt xa tốc độ tối đa cho phép của xe máy tại VN (tối đa 60-70 km/h).`
+        });
+      } else {
+        checklist.push({
+          label: 'Giới hạn tốc độ xe máy',
+          status: 'ok',
+          note: `Mã ${spec.speedRating} cho phép ${spec.maxSpeedKmH} km/h — đáp ứng an toàn tốc độ xe máy.`
+        });
+      }
+    } else if (spec.isCommercialTruck) {
+      if (spec.maxSpeedKmH >= 100) {
+        checklist.push({
+          label: 'Giới hạn tốc độ xe thương mại',
+          status: 'ok',
+          note: `Mã ${spec.speedRating} cho phép ${spec.maxSpeedKmH} km/h — đạt chuẩn an toàn cho xe tải/xe thương mại đường dài (luật định tối đa 70-80 km/h).`
+        });
+      } else {
+        checklist.push({
+          label: 'Giới hạn tốc độ xe thương mại',
+          status: 'warn',
+          note: `Mã ${spec.speedRating} chỉ đạt ${spec.maxSpeedKmH} km/h — cần chú ý tốc độ khi vận chuyển đường trường.`
+        });
+      }
     } else {
-      checklist.push({
-        label: 'Giới hạn tốc độ cao tốc',
-        status: 'error',
-        note: `Mã ${spec.speedRating} chỉ đạt ${spec.maxSpeedKmH} km/h — không an toàn khi lưu thông trên cao tốc.`
-      });
+      if (spec.maxSpeedKmH >= 130) {
+        checklist.push({
+          label: 'Giới hạn tốc độ cao tốc',
+          status: 'ok',
+          note: `Mã ${spec.speedRating} cho phép ${spec.maxSpeedKmH} km/h — an toàn cho cao tốc VN (tối đa 120 km/h).`
+        });
+      } else if (spec.maxSpeedKmH >= 110) {
+        checklist.push({
+          label: 'Giới hạn tốc độ cao tốc',
+          status: 'warn',
+          note: `Mã ${spec.speedRating} giới hạn ${spec.maxSpeedKmH} km/h — sát trần tốc độ cao tốc VN (120 km/h), nên chạy cẩn trọng.`
+        });
+      } else {
+        checklist.push({
+          label: 'Giới hạn tốc độ cao tốc',
+          status: 'error',
+          note: `Mã ${spec.speedRating} chỉ đạt ${spec.maxSpeedKmH} km/h — không an toàn khi lưu thông trên cao tốc.`
+        });
+      }
     }
   } else if (spec.speedRating) {
     checklist.push({
-      label: 'Giới hạn tốc độ cao tốc',
+      label: 'Giới hạn tốc độ',
       status: 'error',
       note: `Mã tốc độ "${spec.speedRating}" không nằm trong bảng quy chuẩn quốc tế. Cần kiểm tra lại ký hiệu.`
     });
   } else {
     checklist.push({
-      label: 'Giới hạn tốc độ cao tốc',
-      status: 'error',
-      note: 'Chưa xác định được mã tốc độ giới hạn. Cần kiểm tra ký hiệu chữ cái sau chỉ số tải.'
+      label: 'Giới hạn tốc độ',
+      status: 'warn',
+      note: 'Chưa có thông số mã tốc độ. Bạn nên nhập thêm (ví dụ 91V, 94W) để DeepM Lab thẩm định ngưỡng vận tốc chi tiết.'
     });
   }
 
   // 3. Độ dày hông lốp
-  if (spec.aspectRatio >= 50) {
+  if (spec.isMotorcycle) {
+    checklist.push({
+      label: 'Độ dày hông lốp',
+      status: 'ok',
+      note: `Tỷ lệ ${spec.aspectRatio}% (hông ${sidewallHeight}mm) — biên dạng hông và độ cong tối ưu cho xe máy nghiêng cua an toàn.`
+    });
+  } else if (spec.aspectRatio >= 50) {
     checklist.push({
       label: 'Độ dày hông lốp',
       status: 'ok',
       note: `Tỷ lệ ${spec.aspectRatio}% (hông ${sidewallHeight}mm) — đủ đệm khí bảo vệ vành trên đường xấu.`
     });
-  } else if (spec.aspectRatio >= 45) {
+  } else if (spec.aspectRatio >= 35) {
     checklist.push({
       label: 'Độ dày hông lốp',
       status: 'warn',
-      note: `Hông lốp ${sidewallHeight}mm (tỷ lệ ${spec.aspectRatio}%). Cẩn thận ổ gà, gờ giảm tốc cao. Nguy cơ bong mép vành.`
+      note: `Tỷ lệ ${spec.aspectRatio}% (hông ${sidewallHeight}mm) — lốp mỏng thể thao. Cẩn thận ổ gà và gờ giảm tốc cao để tránh cấn móp vành.`
     });
   } else {
     checklist.push({
       label: 'Độ dày hông lốp',
-      status: 'error',
-      note: `Tỷ lệ ${spec.aspectRatio}% (hông ${sidewallHeight}mm) — hông siêu mỏng, rất dễ cấn móp mép vành khi sụp ổ gà tốc độ cao.`
+      status: 'warn',
+      note: `Tỷ lệ ${spec.aspectRatio}% (hông ${sidewallHeight}mm) — hông siêu mỏng cực đoan, cần cẩn trọng chú ý mép vành khi qua gờ giảm tốc hoặc ổ gà tốc độ cao.`
     });
   }
 
-  // 4. Cấu trúc Radial
+  // 4. Cấu trúc lốp
   if (spec.construction === 'R' || spec.construction === 'ZR') {
     checklist.push({
       label: 'Cấu trúc lốp',
       status: 'ok',
       note: `Cấu trúc Radial bố thép tỏa tròn (${spec.construction}) — tản nhiệt tối ưu, chống mài mòn và bám đường ổn định.`
     });
+  } else if (spec.isMotorcycle) {
+    checklist.push({
+      label: 'Cấu trúc lốp',
+      status: 'ok',
+      note: `Cấu trúc bố chéo (Bias) đạt quy chuẩn phổ biến xe máy, linh hoạt dập tắt xung lực đường.`
+    });
   } else {
     checklist.push({
       label: 'Cấu trúc lốp',
       status: 'warn',
-      note: `Cấu trúc bố chéo ${spec.construction || 'Bias'} — sinh nhiệt nhiều, không tối ưu cho xe hiện đại vận hành tốc độ cao.`
+      note: `Cấu trúc bố chéo ${spec.construction || 'Bias'} — sinh nhiệt nhiều, không tối ưu cho ô tô du lịch hiện đại vận hành tốc độ cao.`
     });
   }
 
@@ -280,6 +380,18 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       label: 'Kết cấu chịu tải',
       status: 'warn',
       note: 'Xe bán tải / SUV tải nhẹ nên ưu tiên lốp XL hoặc Load Range E chuyên dụng để tăng khả năng chở nặng an toàn.'
+    });
+  } else if (spec.isCommercialTruck) {
+    checklist.push({
+      label: 'Kết cấu chịu tải',
+      status: 'ok',
+      note: 'Lốp xe tải/thương mại gia cường nhiều lớp bố thép (Ply Rating), chịu tải trọng và áp suất bơm cao.'
+    });
+  } else if (spec.isMotorcycle) {
+    checklist.push({
+      label: 'Kết cấu chịu tải',
+      status: 'ok',
+      note: 'Lốp xe máy tiêu chuẩn, phù hợp cho xe số và xe tay ga vận hành đô thị & đường trường.'
     });
   } else {
     checklist.push({
@@ -327,12 +439,48 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
     });
   }
 
-  // 10. Kiểm tra DOT năm sản xuất (luôn warn)
-  checklist.push({
-    label: 'Hạn sử dụng theo mã DOT',
-    status: 'warn',
-    note: 'Nhớ kiểm tra 4 số cuối ký hiệu DOT trên thành lốp. Lốp trên 6 năm nên thay dù gai còn nhiều.'
-  });
+  // 10. Kiểm tra DOT năm sản xuất
+  if (spec.dotAnalysis) {
+    const age = spec.dotAnalysis.ageYears ?? 0;
+    if (spec.dotAnalysis.isExpired || age >= 6) {
+      checklist.push({
+        label: 'Hạn sử dụng (Mã DOT)',
+        status: 'error',
+        note: `Sản xuất Tuần ${spec.dotAnalysis.week}/${spec.dotAnalysis.year} (${spec.dotAnalysis.ageFormatted}) — Đã quá 6 năm tuổi, cao su lão hóa, khuyến cáo thay mới ngay.`
+      });
+    } else if (spec.dotAnalysis.status === 'warning' || age >= 5) {
+      checklist.push({
+        label: 'Hạn sử dụng (Mã DOT)',
+        status: 'warn',
+        note: `Sản xuất Tuần ${spec.dotAnalysis.week}/${spec.dotAnalysis.year} (${spec.dotAnalysis.ageFormatted}) — Lốp đã 5-6 năm tuổi, cao su bắt đầu chai cứng, nên kiểm tra định kỳ.`
+      });
+    } else if (age >= 3) {
+      checklist.push({
+        label: 'Hạn sử dụng (Mã DOT)',
+        status: 'ok',
+        note: `Sản xuất Tuần ${spec.dotAnalysis.week}/${spec.dotAnalysis.year} (${spec.dotAnalysis.ageFormatted}) — Lốp 3-4 năm tuổi, cao su khấu hao nhẹ theo thời gian, chất lượng vận hành còn tốt.`
+      });
+    } else if (spec.dotAnalysis.status === 'fresh' || age < 3) {
+      checklist.push({
+        label: 'Hạn sử dụng (Mã DOT)',
+        status: 'ok',
+        note: `Sản xuất Tuần ${spec.dotAnalysis.week}/${spec.dotAnalysis.year} (${spec.dotAnalysis.ageFormatted}) — Cao su mới xuất xưởng (< 3 năm), độ đàn hồi và bám đường tối ưu.`
+      });
+    } else {
+      checklist.push({
+        label: 'Hạn sử dụng (Mã DOT)',
+        status: 'warn',
+        note: spec.dotAnalysis.message || 'Mã DOT không hợp lệ. Vui lòng kiểm tra lại 4 chữ số trên thành lốp.'
+      });
+    }
+  } else {
+    // Khi chuỗi tra cứu không kèm mã DOT (chỉ là nhắc nhở thực tế)
+    checklist.push({
+      label: 'Khuyến cáo hạn sử dụng (DOT)',
+      status: 'ok',
+      note: 'Chuỗi tra cứu chưa gồm mã DOT. Nhớ đối chiếu 4 số cuối DOT trên lốp thực tế (lốp trên 5-6 năm nên thay dù gai còn nhiều).'
+    });
+  }
 
   // ==========================================
   // D. GÓC NHÌN KỸ THUẬT CHUYÊN SÂU (INSIGHTS)
@@ -449,6 +597,24 @@ export function generateExpertAdvice(spec: FullTireSpec): ExpertAdvice {
       topic: 'Cấu trúc hiệu năng cao ZR',
       type: 'info',
       content: 'Ký hiệu ZR biểu thị cấu trúc bố tỏa tròn Radial thiết kế cho vận tốc trên 240 km/h. Vành bố thép và đai gia cường đỉnh lốp được thiết kế chống ly tâm tốt hơn lốp R tiêu chuẩn.'
+    });
+  }
+
+  // Insight 7: Về Áp suất vỏ (Max Press) vs Áp suất xe
+  if (spec.maxPressurePsi) {
+    insights.push({
+      topic: 'Áp suất vỏ (Max Press) vs Áp suất xe',
+      type: 'warning',
+      content: `Chỉ số ${spec.maxPressurePsi} PSI là áp suất nén giới hạn tối đa mà vỏ lốp có thể chịu đựng trước khi nguy cơ biến dạng nổ lốp. Tuyệt đối không bơm bánh xe ở mức này hàng ngày. Áp suất vận hành thực tế tiêu chuẩn phải tuân thủ đúng tem thông số dán ở bệ cửa ghế lái hoặc nắp bình xăng (thường chỉ 30 – 35 PSI / 2.1 – 2.4 Bar).`
+    });
+  }
+
+  // Insight 8: Về Tải trọng 4 bánh vs Tải trọng trục (GAWR)
+  if (spec.maxLoadKg) {
+    insights.push({
+      topic: 'Tải trọng 4 bánh & Trọng tải trục (GAWR)',
+      type: 'tip',
+      content: `Tổng tải trọng 4 lốp đạt ${(spec.maxTotalLoadKg || spec.maxLoadKg * 4).toLocaleString('vi-VN')} kg không đồng nghĩa xe có thể chở đủ mức này. Trọng lượng xe thực tế phân bổ không đều (thường lệch 60% cầu trước / 40% cầu sau khi không tải, hoặc dồn về cầu sau khi đủ tải). Chủ xe bắt buộc phải đối chiếu với tải trọng giới hạn trên từng trục (GAWR - Gross Axle Weight Rating) ghi trên tem xe.`
     });
   }
 

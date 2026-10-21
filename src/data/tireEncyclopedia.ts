@@ -1,7 +1,8 @@
 // Dữ liệu tra cứu toàn diện theo tài liệu "Thông số lốp.md" của DeepM
 
-// 9.1. Chỉ số tải trọng chuẩn quốc tế (Load Index - Li) từ 30 đến 160 (Bao gồm xe máy, xe du lịch, xe tải nhẹ đến container)
+// 9.1. Chỉ số tải trọng chuẩn quốc tế (Load Index - Li) từ 20 đến 160 (Bao gồm xe máy điện nhẹ, xe máy, xe du lịch, xe tải nhẹ đến container)
 export const LOAD_INDEX_TABLE: Record<number, number> = {
+  20: 80, 21: 82, 22: 85, 23: 88, 24: 90, 25: 92, 26: 95, 27: 97, 28: 100, 29: 103,
   30: 106, 31: 109, 32: 112, 33: 115, 34: 118, 35: 121, 36: 125, 37: 128, 38: 132, 39: 136,
   40: 140, 41: 145, 42: 150, 43: 155, 44: 160, 45: 165, 46: 170, 47: 175, 48: 180, 49: 185,
   50: 190, 51: 195, 52: 200, 53: 206, 54: 212, 55: 218, 56: 224, 57: 230, 58: 236, 59: 243,
@@ -46,6 +47,7 @@ export const SPEED_RATING_TABLE: Record<string, { speedKmH: number; desc: string
   V: { speedKmH: 240, desc: 'Sedan / SUV công suất cao (tối đa 240 km/h)' },
   Z: { speedKmH: 240, desc: 'Lốp hiệu năng cao trên 240 km/h (Chuẩn ZR)' },
   W: { speedKmH: 270, desc: 'Xe thể thao, mô tô phân khối lớn (tối đa 270 km/h)' },
+  '(W)': { speedKmH: 270, desc: 'Mô tô phân khối lớn / xe thể thao vận tốc trên 270 km/h' },
   Y: { speedKmH: 300, desc: 'Siêu xe thể thao cao cấp (tối đa 300 km/h)' },
   '(Y)': { speedKmH: 320, desc: 'Siêu xe đặc biệt vận tốc trên 300 km/h' }
 };

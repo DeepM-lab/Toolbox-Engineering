@@ -28,6 +28,8 @@ export interface TestCase {
     maxLoadExplicitKg?: number;
     brand?: string;
     pattern?: string;
+    patternShouldBeUndefined?: boolean;
+    terrainOrTechShouldBeUndefined?: boolean;
     isMotorcycle?: boolean;
     isCommercialTruck?: boolean;
     isFlotation?: boolean;
@@ -603,6 +605,7 @@ export const VARIANT_TEST_CASES: TestCase[] = [
       width: 110,
       aspectRatio: 70,
       rimDiameter: 12,
+      construction: '-',
       isMotorcycle: true,
       vehicleType: 'MC',
       loadIndex: 47,
@@ -619,6 +622,7 @@ export const VARIANT_TEST_CASES: TestCase[] = [
       width: 140,
       aspectRatio: 70,
       rimDiameter: 17,
+      construction: '-',
       isMotorcycle: true,
       vehicleType: 'MC',
       loadIndex: 66,
@@ -648,6 +652,8 @@ export const VARIANT_TEST_CASES: TestCase[] = [
       dotCode: '4721',
       maxPressurePsi: 44,
       maxLoadExplicitKg: 615,
+      patternShouldBeUndefined: true,
+      terrainOrTechShouldBeUndefined: true,
       techFeaturesMustInclude: ['Tubeless']
     }
   },
@@ -869,7 +875,8 @@ export const VARIANT_TEST_CASES: TestCase[] = [
       aspectRatio: 55,
       rimDiameter: 16,
       loadIndex: 91,
-      speedRating: 'V'
+      speedRating: 'V',
+      patternShouldBeUndefined: true
     }
   },
   {
@@ -878,6 +885,7 @@ export const VARIANT_TEST_CASES: TestCase[] = [
     input: 'DRC Đà Nẵng 11R22.5 16PR',
     expected: {
       brand: 'DRC',
+      patternShouldBeUndefined: true,
       normalizedSize: '11R22.5',
       width: 279,
       aspectRatio: 90,
@@ -898,7 +906,8 @@ export const VARIANT_TEST_CASES: TestCase[] = [
       rimDiameter: 16,
       loadIndex: 91,
       speedRating: 'V',
-      dotCode: '4721'
+      dotCode: '4721',
+      patternShouldBeUndefined: true
     }
   },
   {
@@ -1020,7 +1029,43 @@ export const VARIANT_TEST_CASES: TestCase[] = [
       dualLoadIndex: '152/148',
       speedRating: 'M',
       maxLoadExplicitKg: 3550,
-      maxPressurePsi: 130
+      maxPressurePsi: 130,
+      patternShouldBeUndefined: true,
+      terrainOrTechShouldBeUndefined: true
+    }
+  },
+  {
+    id: 63,
+    category: 'Tính năng lặp & Tiêu đề e-commerce',
+    input: 'Vỏ lốp Tubeless Lead 90/90-14 46P Tubeless',
+    expected: {
+      normalizedSize: '90/90-14',
+      width: 90,
+      aspectRatio: 90,
+      rimDiameter: 14,
+      construction: '-',
+      isMotorcycle: true,
+      vehicleType: 'MC',
+      loadIndex: 46,
+      speedRating: 'P',
+      pattern: 'Lead',
+      techFeaturesMustInclude: ['Tubeless']
+    }
+  },
+  {
+    id: 64,
+    category: 'Thương hiệu có tiền tố tiếng Việt',
+    input: 'Lốp Cao Su Đà Nẵng 11R22.5 16PR',
+    expected: {
+      brand: 'DRC',
+      patternShouldBeUndefined: true,
+      normalizedSize: '11R22.5',
+      width: 279,
+      aspectRatio: 90,
+      rimDiameter: 22.5,
+      isCommercialTruck: true,
+      vehicleType: 'TRUCK',
+      techFeaturesMustInclude: ['16PR']
     }
   }
 ];
@@ -1097,6 +1142,12 @@ export function runVerification(): VerificationResult {
       }
       if (exp.pattern !== undefined && res.pattern !== exp.pattern) {
         errors.push(`pattern: Kỳ vọng "${exp.pattern}", nhận được "${res.pattern}"`);
+      }
+      if (exp.patternShouldBeUndefined && res.pattern !== undefined) {
+        errors.push(`pattern: Kỳ vọng undefined (không bị ô nhiễm), nhận được "${res.pattern}"`);
+      }
+      if (exp.terrainOrTechShouldBeUndefined && res.terrainOrTech !== undefined) {
+        errors.push(`terrainOrTech: Kỳ vọng undefined, nhận được ${JSON.stringify(res.terrainOrTech)}`);
       }
       if (exp.isMotorcycle !== undefined && res.isMotorcycle !== exp.isMotorcycle) {
         errors.push(`isMotorcycle: Kỳ vọng ${exp.isMotorcycle}, nhận được ${res.isMotorcycle}`);
