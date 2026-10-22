@@ -746,7 +746,7 @@ export function parseFullTireString(input: string): FullTireSpec | null {
   }
 
   // Tinh chỉnh kết cấu Bias cho lốp xe máy phổ thông nếu chuỗi gốc không có 'R' hoặc 'ZR' và không phải hệ inch có dấu chấm
-  if (isMotorcycle && !sizeMatchedSubstring.includes('.') && !/\b(?:ZR|R)\b/i.test(sizeMatchedSubstring) && !/\b[0-9]+[RZ][0-9]+/i.test(sizeMatchedSubstring)) {
+  if (isMotorcycle && !sizeMatchedSubstring.includes('.') && !/(?:ZR|R)/i.test(sizeMatchedSubstring)) {
     construction = '-';
     normalizedSize = `${width}/${aspectRatio}-${rimDiameter}`;
   }

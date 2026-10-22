@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:variants": "vitest run src/utils/tireVariants.test.ts",
-    "verify:tires": "vitest run scripts/verifyTireVariants.ts"
+    "verify:tires": "tsx scripts/verifyTireVariants.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
